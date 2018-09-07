@@ -58,7 +58,6 @@ class BookDetails extends Component{
         let newState = this.state.book;
         newState.category = parseInt(event.target.value, 10);
         this.setState({book: newState});
-        console.log(this.state)
     }
 
     updateLanguage(event){
@@ -70,7 +69,6 @@ class BookDetails extends Component{
     render(){
         return(
             <div>
-                {this.props.book.title}
                 <Form>
                     <FormGroup>
                         <Label for="bookFile">Upload book</Label>

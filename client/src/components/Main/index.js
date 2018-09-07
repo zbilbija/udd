@@ -4,6 +4,7 @@ import classnames from 'classnames';
 import axios from 'axios';
 import BookContainer from '../BookContainer';
 import ProfileForm from './ProfileForm';
+import UserContainer from '../UserContainer';
 
 class Main extends Component{
     constructor(props) {
@@ -57,7 +58,7 @@ class Main extends Component{
                     <h4>CATEGORY LIST</h4>
                 </TabPane>
                 <TabPane tabId="3">
-                    <h3>USERS LIST</h3>
+                  <UserContainer />
                 </TabPane>
                 <TabPane tabId="4">
                     <ProfileForm user={JSON.parse(localStorage.getItem("user"))} />
