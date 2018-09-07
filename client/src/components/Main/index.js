@@ -4,6 +4,7 @@ import classnames from 'classnames';
 import BookContainer from '../BookContainer';
 import ProfileForm from './ProfileForm';
 import UserContainer from '../UserContainer';
+import CategoryContainer from '../CategoryContainer';
 
 class Main extends Component{
     constructor(props) {
@@ -61,7 +62,7 @@ class Main extends Component{
                     <BookContainer />
                 </TabPane>
                 <TabPane tabId="2">
-                    <h4>CATEGORY LIST</h4>
+                    <CategoryContainer/>
                 </TabPane>
                 <TabPane tabId="3">
                   <UserContainer rand={this.state.rand}/>
