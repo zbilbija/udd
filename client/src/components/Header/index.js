@@ -12,6 +12,10 @@ class Header extends Component{
         this.logout = this.logout.bind(this);
     }
 
+    componentWillReceiveProps(newProps){
+        this.setState({user: newProps.user})
+    }
+
     logout(){
         //axios call for logout -> on 200 remove user obj from localStorage
     }

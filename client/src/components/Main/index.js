@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import {TabContent, TabPane, Nav, NavItem, NavLink, Button} from 'reactstrap';
 import classnames from 'classnames';
 import axios from 'axios';
+import BookContainer from '../BookContainer';
+import ProfileForm from './ProfileForm';
 
 class Main extends Component{
     constructor(props) {
@@ -41,16 +43,24 @@ class Main extends Component{
                         List all users
                     </NavLink>
                 </NavItem>}
+                {this.state.userType !== 'guest' && <NavItem>
+                    <NavLink className={classnames({ active: this.state.activeTab === '4' })} onClick={() => { this.toggle('4'); }}>
+                        Change profile data
+                    </NavLink>
+                </NavItem>}
             </Nav>
             <TabContent activeTab={this.state.activeTab}>
                 <TabPane tabId="1">
-                    <h4>TEMP BOOKS</h4>
+                    <BookContainer />
                 </TabPane>
                 <TabPane tabId="2">
                     <h4>CATEGORY LIST</h4>
                 </TabPane>
                 <TabPane tabId="3">
                     <h3>USERS LIST</h3>
+                </TabPane>
+                <TabPane tabId="4">
+                    <ProfileForm user={JSON.parse(localStorage.getItem("user"))} />
                 </TabPane>
             </TabContent>
         </div>)

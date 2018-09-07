@@ -32,7 +32,7 @@ class LoginBlock extends Component {
             <Container>
                 <Row>
                     <Col xs="6" sm="4">
-                        <Form>
+                        <Form style={{textAlign: "center"}}>
                             <FormGroup>
                                 <Label for="username">Enter username</Label>
                                 <Input type="text" name="username" id="username" onChange={this.onInputChange}/>
@@ -45,9 +45,9 @@ class LoginBlock extends Component {
                         </Form>
                     </Col>
                 </Row>
-                <Row style={{margin: "5px"}}>
-                    <Col xs="6" sm="4">
-                        <Button color="info">Proceed as guest</Button>
+                <Row style={{margin: "5px"}} style={{textAlign: "center"}}>
+                    <Col xs="6" sm="4" >
+                        <Button color="info" style={{margin: "5px"}}>Proceed as guest</Button>
                     </Col>
                 </Row>
             </Container>

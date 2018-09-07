@@ -8,20 +8,22 @@ class App extends Component {
 
   constructor(props){
     super(props);
+    let us = JSON.parse(localStorage.getItem("user"));
     this.state = {
-      user: null
+      user:  null
     }
     this.storeUser = this.storeUser.bind(this);
   }
 
   storeUser(info){
     localStorage.setItem("user", JSON.stringify(info));
-    this.setState({user: info});
+    this.state.user = info
+    this.setState({user: info})
   }
 
   render() {
     return (
-      <div className="App">
+      <div >
         <header>
           <Header user={this.state.user}/>
         </header>
