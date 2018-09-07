@@ -9,7 +9,7 @@ class UserDetails extends Component{
         this.state={
             user: this.props.user,
             categories: this.props.categories,
-            types: ["admin", "subscriber"]
+            types: ["admin", "pretplatnik"]
         }
         this.updateState = this.updateState.bind(this);
         this.updateCategory = this.updateCategory.bind(this);
@@ -25,7 +25,7 @@ class UserDetails extends Component{
 
     updateCategory(event){
         let newState = this.state.user;
-        newState.category = parseInt(event.target.value, 10);
+        newState.category = this.state.categories.find( cat => cat.id === parseInt(event.target.value, 10));
         this.setState({user: newState});
     }
 
@@ -36,7 +36,7 @@ class UserDetails extends Component{
     }
 
     sendChanges(){
-        //send state thorugh axios
+       //axios.post("http://localhost:8080/user/" + this.state.user.username, this.state.user)
     }
 
     render(){
@@ -55,8 +55,8 @@ class UserDetails extends Component{
                     <Input value={this.state.user.username} type="text" id="username" name="username" onChange={this.updateState}/>
                 </FormGroup>
                 <FormGroup>
-                    <Label for="password">Enter new password</Label>
-                    <Input type="password" name="password" id="password" onChange={this.updateState}/>
+                    <Label for="userPassword">Enter new password</Label>
+                    <Input type="password" name="userPassword" id="userPassword" onChange={this.updateState}/>
                 </FormGroup>
                 <FormGroup>
                     <Label for="userType">Type</Label>
@@ -67,7 +67,7 @@ class UserDetails extends Component{
                     </Input>
                 </FormGroup>
                 {
-                    this.state.user.type === "subscriber" && 
+                    this.state.user.type === "pretplatnik" && 
                     <FormGroup>
                         <Label for="category">Category</Label>
                         <Input type="select" id="category" name="category" onChange={this.updateCategory}>

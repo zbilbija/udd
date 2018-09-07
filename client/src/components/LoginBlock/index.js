@@ -22,9 +22,12 @@ class LoginBlock extends Component {
     }
 
     submitLogin(){
-        console.log(this.state)
-        this.props.storeUser(this.state);
-        //make axios request, if 200 -> store user obj in localStorage 
+       
+        let obj = {"username": this.state.username, "userPassword": this.state.password}
+        axios.post("http://localhost:8080/login", obj)
+            .then(resp => {
+                this.props.storeUser(resp.data);
+            })
     }
 
     render(){
@@ -45,7 +48,7 @@ class LoginBlock extends Component {
                         </Form>
                     </Col>
                 </Row>
-                <Row style={{margin: "5px"}} style={{textAlign: "center"}}>
+                <Row style={{margin: "5px", textAlign: "center"}}>
                     <Col xs="6" sm="4" >
                         <Button color="info" style={{margin: "5px"}}>Proceed as guest</Button>
                     </Col>

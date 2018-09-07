@@ -10,7 +10,7 @@ class App extends Component {
     super(props);
     let us = JSON.parse(localStorage.getItem("user"));
     this.state = {
-      user:  null
+      user:  us
     }
     this.storeUser = this.storeUser.bind(this);
   }

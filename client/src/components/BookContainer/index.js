@@ -1,17 +1,18 @@
 import React, { Component } from 'react';
 import {Container, Row, Col, Collapse, ListGroup, ListGroupItem, Button} from 'reactstrap';
 import BookDetails from './BookDetails';
+import axios from "axios";
 
 class BookContainer extends Component{
 
     constructor(props){
         super(props);
         this.state={
-            books: [{"id": 0, "title": "Book 1", "author": "Someone Importantic", "category": 0, "language": 1}, {"id": 1, "title": "Book 2", "author": "Someone", "category": 0, "language": 1}, {"id": 2, "title": "Book 2", "author": "Regula Expressionov", "category": 2, "language": 1},
-            {"id": 3, "title": "Book 4", "author": "XMLovic", "category": 2, "language": 0}, {"id": 4, "title": "Book 5", "author": "Lavoranov", "category": 3, "language": 0}, {"id": 5, "title": "Book 6", "author": "Someone Importantic", "category": 3, "language": 2},
-            {"id": 6, "title": "Book 7", "author": "Lavoranov", "category": 3, "language": 3}],
-            categories: [{"id": 0, "name": "Cat 1"}, {"id": 1, "name": "Cat 2"}, {"id": 2, "name": "Cat 3"}, {"id": 3, "name": "Cat 4"}],
-            languages: [{"id": 0, "name": "english"}, {"id": 1, "name": "serbian"},{"id": 2, "name": "french"},{"id": 3, "name": "german"}],
+            books: [{"id": 0, "title": "Book 1", "author": "Someone Importantic", "category": 2, "language": 1}, {"id": 1, "title": "Book 2", "author": "Someone", "category": 0, "language": 1}, {"id": 2, "title": "Book 2", "author": "Regula Expressionov", "category": 1, "language": 1},
+            {"id": 3, "title": "Book 4", "author": "XMLovic", "category": 1, "language": 0}, {"id": 4, "title": "Book 5", "author": "Lavoranov", "category": 2, "language": 0}, {"id": 5, "title": "Book 6", "author": "Someone Importantic", "category": 1, "language": 1},
+            {"id": 6, "title": "Book 7", "author": "Lavoranov", "category": 2, "language": 1}],
+            categories: [],
+            languages: [],
             selectedCatIds:[],
             selectedBook: {},
             newBook: false
@@ -23,19 +24,32 @@ class BookContainer extends Component{
         this.newBookClick = this.newBookClick.bind(this);
     }
 
+    componentWillMount(){
+        axios.get("http://localhost:8080/categories").then(resp =>{
+            console.log(resp.data)
+            this.setState({categories: resp.data})
+        })
+        axios.get("http://localhost:8080/languages").then(resp =>{
+            this.setState({languages: resp.data})
+        })
+        axios.get("http://localhost:8080/books").then(resp =>{
+            this.setState({books: resp.data})
+        })
+    }
+
     componentDidMount(){
         this.setState({selectedCatIds: Array(this.state.categories.length).fill(false)})
     }
 
     toggleBooks(event){
         let arr = this.state.selectedCatIds;
-        arr[this.findCatWithId(parseInt(event.target.id), 10)] = !arr[this.findCatWithId(parseInt(event.target.id), 10)];
+        arr[this.findCatWithId(parseInt(event.target.id, 10))] = !arr[this.findCatWithId(parseInt(event.target.id, 10))];
         this.setState({selectedCatIds: arr});
     }
 
     bookDetails(event){
         let book = this.state.books.find(book => book.id === parseInt(event.target.id, 10))
-        this.setState({selectedBook: book});
+        this.setState({selectedBook: book, newBook: false});
     }
 
     isEmpty(obj) {
@@ -63,7 +77,6 @@ class BookContainer extends Component{
 
     newBookClick(){
         this.setState({selectedBook: {}, newBook: true});
-        console.log(this.state)
     }
 
     render(){

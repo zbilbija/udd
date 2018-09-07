@@ -17,7 +17,9 @@ class Header extends Component{
     }
 
     logout(){
-        //axios call for logout -> on 200 remove user obj from localStorage
+        axios.get("http://localhost:8080/logout").then(resp => {
+            localStorage.removeItem("user");
+        })
     }
 
     render(){

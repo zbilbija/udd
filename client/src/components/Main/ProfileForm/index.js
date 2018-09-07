@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {Button, Form, FormGroup, Label, Input, Container, Row, Col} from 'reactstrap';
+import {Button, Form, FormGroup,FormFeedback, Label, Input, Container, Row, Col} from 'reactstrap';
 import axios from 'axios';
 
 class ProfileForm extends Component{
@@ -7,6 +7,8 @@ class ProfileForm extends Component{
         super(props);
         this.state = {
             user: this.props.user,
+            startingUsername: this.props.user.username,
+            validUsername: true,
             validNewPass: false
         }
         this.updateState = this.updateState.bind(this);
@@ -22,7 +24,16 @@ class ProfileForm extends Component{
     }
 
     submitProfile(){
-        //send axios request
+        axios.post("http://localhost:8080/updateProfile/" + this.state.startingUsername, this.state.user)
+            .then(resp => {
+                if(resp.data.hasOwnProperty("error")){
+                    this.setState({validUsername: false})
+                } else {
+                    this.setState({validUsername: true, user: resp.data});
+                    localStorage.setItem("user", JSON.stringify(resp.data))
+                    this.props.refresh();
+                }
+            })
     }
 
     checkPass(event){
@@ -54,7 +65,9 @@ class ProfileForm extends Component{
                             </FormGroup>
                             <FormGroup>
                                 <Label for="username">Username</Label>
-                                <Input value={this.state.user.username} type="text" id="username" name="username" onChange={this.updateState}/>
+                                <Input value={this.state.user.username} type="text" id="username" name="username" onChange={this.updateState} valid={this.state.validUsername}
+                                invalid={!this.state.validUsername}/>
+                                <FormFeedback tooltip>Username isn't unique</FormFeedback>
                             </FormGroup>
                             <Button color="success" onClick={this.submitProfile}>Submit</Button>
                         </Form>

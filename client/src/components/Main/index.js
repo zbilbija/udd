@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import {TabContent, TabPane, Nav, NavItem, NavLink, Button} from 'reactstrap';
 import classnames from 'classnames';
-import axios from 'axios';
 import BookContainer from '../BookContainer';
 import ProfileForm from './ProfileForm';
 import UserContainer from '../UserContainer';
@@ -13,8 +12,10 @@ class Main extends Component{
         this.toggle = this.toggle.bind(this);
         this.state = {
             activeTab: '1',
-            userType: JSON.parse(localStorage.getItem("user")).type
+            userType: JSON.parse(localStorage.getItem("user")).type,
+            rand: 0
         };
+        this.refresh = this.refresh.bind(this);
     }
 
     toggle(tab) {
@@ -23,6 +24,11 @@ class Main extends Component{
             activeTab: tab
           });
         }
+    }
+
+    refresh(){
+        console.log("refreshed")
+        this.setState({rand: this.state.rand+1})
     }
 
     render(){
@@ -58,10 +64,10 @@ class Main extends Component{
                     <h4>CATEGORY LIST</h4>
                 </TabPane>
                 <TabPane tabId="3">
-                  <UserContainer />
+                  <UserContainer rand={this.state.rand}/>
                 </TabPane>
                 <TabPane tabId="4">
-                    <ProfileForm user={JSON.parse(localStorage.getItem("user"))} />
+                    <ProfileForm user={JSON.parse(localStorage.getItem("user"))} refresh={this.refresh}/>
                 </TabPane>
             </TabContent>
         </div>)

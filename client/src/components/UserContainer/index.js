@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import {Container, Row, Col, Collapse, ListGroup, ListGroupItem, Button} from 'reactstrap';
+import {Container, Row, Col, ListGroup, ListGroupItem, Button} from 'reactstrap';
 import UserDetails from './UserDetails';
+import axios from 'axios';
 
 class UserContainer extends Component{
 
@@ -10,10 +11,29 @@ class UserContainer extends Component{
             users: [],
             categories: [],
             selectedUser: {},
-            newUser: false
+            newUser: false,
+            rand: this.props.rand
         }
         this.userDetails = this.userDetails.bind(this);
         this.newUserClick = this.newUserClick.bind(this);
+    }
+
+    componentWillReceiveProps(){
+        axios.get("http://localhost:8080/users").then(resp => {
+            this.setState({users: resp.data})
+        })
+        axios.get("http://localhost:8080/categories").then(resp =>{
+            this.setState({categories: resp.data})
+        })
+    }
+
+    componentWillMount(){
+        axios.get("http://localhost:8080/users").then(resp => {
+            this.setState({users: resp.data})
+        })
+        axios.get("http://localhost:8080/categories").then(resp =>{
+            this.setState({categories: resp.data})
+        })
     }
 
     userDetails(event){
