@@ -32,9 +32,9 @@ class BookContainer extends Component{
         axios.get("http://localhost:8080/languages").then(resp =>{
             this.setState({languages: resp.data})
         })
-        axios.get("http://localhost:8080/books").then(resp =>{
-            this.setState({books: resp.data})
-        })
+        // axios.get("http://localhost:8080/books").then(resp =>{
+        //     this.setState({books: resp.data})
+        // })
     }
 
     componentDidMount(){

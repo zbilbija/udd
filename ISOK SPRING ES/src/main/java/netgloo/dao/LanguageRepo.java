@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import netgloo.models.Language;
 
 @Transactional
+@Repository
 public interface LanguageRepo extends CrudRepository<Language, Integer>{
 
 }

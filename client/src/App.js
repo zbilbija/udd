@@ -3,6 +3,7 @@ import './App.css';
 import LoginBlock from './components/LoginBlock';
 import Main from './components/Main';
 import Header from './components/Header'
+import axios from 'axios';
 
 class App extends Component {
 
@@ -13,6 +14,12 @@ class App extends Component {
       user:  us
     }
     this.storeUser = this.storeUser.bind(this);
+  }
+
+  componentWillMount(){
+    if(this.state.user){
+      axios.post("http://localhost:8080/login", this.state.user)
+    }
   }
 
   storeUser(info){

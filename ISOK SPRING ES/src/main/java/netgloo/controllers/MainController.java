@@ -1,6 +1,11 @@
 package netgloo.controllers;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
@@ -14,10 +19,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.itextpdf.text.pdf.PdfDate;
+import com.itextpdf.text.pdf.PdfReader;
+
+import netgloo.dao.BookRepo;
 import netgloo.dao.CategoryRepo;
 import netgloo.dao.LanguageRepo;
 import netgloo.dao.UserRepo;
+import netgloo.models.Book;
 import netgloo.models.Category;
 import netgloo.models.Language;
 import netgloo.models.User;
@@ -35,6 +46,9 @@ public class MainController {
 	
 	@Autowired
 	private LanguageRepo lr;
+	
+	@Autowired
+	private BookRepo br;
 	
 	@RequestMapping("/")
 	@ResponseBody
@@ -115,6 +129,8 @@ public class MainController {
 		return ResponseEntity.status(HttpStatus.OK).body(foundUsers);
 	}
 	
+	//TODO: FETCH DATA
+	
 	@RequestMapping(value="/categories",  method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Object> getCategories(HttpSession session) {
@@ -127,5 +143,75 @@ public class MainController {
 	public ResponseEntity<Object> getLanguages(HttpSession session) {
 		List<Language> foundLangs = (List<Language>) lr.findAll();
 		return ResponseEntity.status(HttpStatus.OK).body(foundLangs);
+	}
+	
+	//TODO: BOOK DATA-NOT ELASTIC
+	@RequestMapping(value = "/upload/{username}", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Object> uploadFiles(@PathVariable String username, @RequestBody MultipartFile[] files) {
+		
+		User us = ur.findByUsername(username);
+	    Book book = null;
+	    String filePath = System.getProperty("user.dir") + "/src/main/resources/assets";
+	    
+	    for (MultipartFile file : files) {
+	        String extension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.'));
+
+	        String newFileName = file.getOriginalFilename(); //set unique name when saving on server
+	        File newFile;
+
+	        File imageFolder = new File(filePath);
+	        //check if parent folders exist else create it
+	        if(imageFolder .exists() || imageFolder .mkdirs()) {
+	        	int i = 1;
+	            while ((newFile = new File(imageFolder .getAbsolutePath() + "\\" + newFileName)).exists()) {
+	                newFileName = file.getOriginalFilename().substring(0, file.getOriginalFilename().lastIndexOf('.')) + i
+	                		+ extension; //generate new name if file already exists
+	                System.out.println(newFileName);
+	                i++;
+	            }
+	            try {
+	            	System.out.println("====================FILE PATH===============");
+	            	System.out.println(newFile.getAbsolutePath());
+	                file.transferTo(newFile);
+	                book = resolveMetadata(newFile.getAbsolutePath());
+	                book.setUser(us);
+	                book = br.save(book);
+	            } catch (IOException e) {
+	                e.printStackTrace();
+	            }
+	            
+	        } else {
+	            System.out.println("Could not create folder at " + imageFolder.getAbsolutePath());
+	        }
+	    }
+	    
+	    return ResponseEntity.status(HttpStatus.OK).body(book);
+	}
+	
+	private Book resolveMetadata(String filePath) {
+		Book b = null;
+		try {
+			PdfReader reader = new PdfReader(filePath);
+			HashMap<String, String> info = reader.getInfo();
+			for (Map.Entry<String, String> entry : info.entrySet())
+			{
+			    System.out.println(entry.getKey() + "/" + entry.getValue());
+			}
+			b = new Book();
+			b.setAuthor(info.get("Author"));
+			b.setTitle(info.get("Title"));
+			b.setMime("application/pdf");
+			b.setKeywords(info.get("Keywords"));
+			b.setFileName(filePath);
+			Calendar c = PdfDate.decode(info.get("CreationDate"));
+			int year = c.get(Calendar.YEAR);
+			b.setPublicationYear(year);
+			reader.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return b;
 	}
 }

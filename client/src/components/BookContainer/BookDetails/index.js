@@ -8,7 +8,8 @@ class BookDetails extends Component{
         this.state={
             book: this.props.book? this.props.book : {},
             categories: this.props.categories,
-            languages: this.props.languages
+            languages: this.props.languages,
+            update: this.props.update
         }
         this.sendFileForMetadata = this.sendFileForMetadata.bind(this);
         this.updateState = this.updateState.bind(this);
@@ -21,28 +22,30 @@ class BookDetails extends Component{
         this.setState({
             book: newProps.book,
             categories: newProps.categories,
-            languages: newProps.languages
+            languages: newProps.languages,
+            update: newProps.update
         })
     }
 
     sendChanges(){
-        //send state thorugh axios
+        axios.post("http://localhost:8080/searchBooks/add", this.state.book).then(resp => { console.log(resp.data) })
     }
 
     sendFileForMetadata(event){
         var formData = new FormData();
         let file = document.querySelector('#bookFile');
         console.log(file.files[0])
+        let user = JSON.parse(localStorage.getItem("user"));
         if(file.files[0].type === "application/pdf"){
-            formData.append("file", file.files[0]);
-            // axios.post('urlForJavaPost', formData, {
-            //     headers: {
-            //         'Content-Type': 'multipart/form-data'
-            //     }
-            // }).then(res => {
-            //     let bookData = res.data;
-            //     this.setState({book: bookData})    
-            // })
+            formData.append("files", file.files[0]);
+            axios.post('http://localhost:8080/upload/' + user.username, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            }).then(resp => {
+                console.log(resp.data)
+                this.setState({book: resp.data, update: true})    
+            })
             // on response -> update author, title and other fields
             // response holds metadata info in book object or smth
         }
@@ -74,7 +77,7 @@ class BookDetails extends Component{
                         <Label for="bookFile">Upload book</Label>
                         <Input type="file" name="file" id="bookFile" onChange={this.sendFileForMetadata} accept=".pdf"/>
                     </FormGroup>
-                    {this.props.update &&
+                    {this.state.update &&
                         <span>
                         <FormGroup>
                             <Label for="language">Language</Label>
