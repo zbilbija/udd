@@ -52,9 +52,9 @@ class CategoryContainer extends Component{
                     <Col sm="4" style={{ marginLeft: "20px"}}>
                         <Row>
                            <h4>List of categories</h4>
-                           <div>
+                        </Row>
+                        <Row>
                             <Button color="success" onClick={this.newCatClick}>Add category</Button>
-                           </div>
                         </Row>
                         <ListGroup>
                         {this.state.categories.map( (cat) => {

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +56,7 @@ public class ElasticController {
 		super();
 		this.ebr = ebr;
 	}
-	
+			
 	@RequestMapping(value = "/upload/{username}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Object> uploadFiles(@PathVariable String username, @RequestBody MultipartFile[] files) {
@@ -97,6 +98,13 @@ public class ElasticController {
 	    }
 	    
 	    return ResponseEntity.status(HttpStatus.OK).body(book);
+	}
+	
+	@RequestMapping(value="/fetchAll",  method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<Object> getAll(){
+		List<EBook> list = ebr.fetchAllEBooks();
+		return ResponseEntity.status(HttpStatus.OK).body(list);
 	}
 	
 	@RequestMapping(value="/add",  method = RequestMethod.POST)

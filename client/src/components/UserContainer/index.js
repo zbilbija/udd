@@ -60,9 +60,9 @@ class UserContainer extends Component{
                     <Col sm="4" style={{ marginLeft: "20px"}}>
                         <Row>
                            <h4>List of users</h4>
-                           <div>
+                        </Row>
+                        <Row>
                             <Button color="success" onClick={this.newUserClick}>Add user</Button>
-                           </div>
                         </Row>
                         <ListGroup>
                         {this.state.users.map( (user) => {

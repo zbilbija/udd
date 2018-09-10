@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import {TabContent, TabPane, Nav, NavItem, NavLink, Button} from 'reactstrap';
+import {TabContent, TabPane, Nav, NavItem, NavLink} from 'reactstrap';
 import classnames from 'classnames';
 import BookContainer from '../BookContainer';
 import ProfileForm from './ProfileForm';
 import UserContainer from '../UserContainer';
 import CategoryContainer from '../CategoryContainer';
+import SearchContainer from '../SearchContainer';
 
 class Main extends Component{
     constructor(props) {
@@ -56,6 +57,11 @@ class Main extends Component{
                         Change profile data
                     </NavLink>
                 </NavItem>}
+                <NavItem>
+                    <NavLink className={classnames({ active: this.state.activeTab === '5' })} onClick={() => { this.toggle('5'); }}>
+                        Search books
+                    </NavLink>
+                </NavItem>
             </Nav>
             <TabContent activeTab={this.state.activeTab}>
                 <TabPane tabId="1">
@@ -69,6 +75,9 @@ class Main extends Component{
                 </TabPane>
                 <TabPane tabId="4">
                     <ProfileForm user={JSON.parse(localStorage.getItem("user"))} refresh={this.refresh}/>
+                </TabPane>
+                <TabPane tabId="5">
+                    <SearchContainer />
                 </TabPane>
             </TabContent>
         </div>)

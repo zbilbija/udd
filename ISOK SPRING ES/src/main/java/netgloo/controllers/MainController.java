@@ -1,11 +1,6 @@
 package netgloo.controllers;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
@@ -19,10 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
-import com.itextpdf.text.pdf.PdfDate;
-import com.itextpdf.text.pdf.PdfReader;
 
 import netgloo.dao.BookRepo;
 import netgloo.dao.CategoryRepo;

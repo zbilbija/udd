@@ -57,7 +57,10 @@ class BookDetails extends Component{
 
     updateState(event){
         let newState = this.state.book;
-        newState[event.target.name] = event.target.value;
+        if(event.target.name === "publicationYear")
+            newState[event.target.name] = parseInt(event.target.value, 10);
+        else
+            newState[event.target.name] = event.target.value;
         this.setState({book: newState})
     }
 

@@ -99,7 +99,7 @@ class BookContainer extends Component{
                         </Row>
                         {this.state.categories.map( (cat, i) => {
                             return( <div key={i}>
-                                <Button id={cat.id} color="primary" onClick={this.toggleBooks} style={{margin: "5px"}}>{cat.name}</Button>
+                                <Button id={cat.id} color="info" onClick={this.toggleBooks} style={{margin: "5px"}}>{cat.name}</Button>
                                 <Collapse isOpen={this.state.selectedCatIds[this.findCatWithId(cat.id)]}>
                                     <ListGroup style={{marginBottom: "15px"}} >
                                         {this.renderListItems(cat.id)}
