@@ -8,9 +8,7 @@ class BookContainer extends Component{
     constructor(props){
         super(props);
         this.state={
-            books: [{"id": 0, "title": "Book 1", "author": "Someone Importantic", "category": 2, "language": 1}, {"id": 1, "title": "Book 2", "author": "Someone", "category": 0, "language": 1}, {"id": 2, "title": "Book 2", "author": "Regula Expressionov", "category": 1, "language": 1},
-            {"id": 3, "title": "Book 4", "author": "XMLovic", "category": 1, "language": 0}, {"id": 4, "title": "Book 5", "author": "Lavoranov", "category": 2, "language": 0}, {"id": 5, "title": "Book 6", "author": "Someone Importantic", "category": 1, "language": 1},
-            {"id": 6, "title": "Book 7", "author": "Lavoranov", "category": 2, "language": 1}],
+            books: [],
             categories: [],
             languages: [],
             selectedCatIds:[],
@@ -22,9 +20,19 @@ class BookContainer extends Component{
         this.renderListItems = this.renderListItems.bind(this);
         this.findCatWithId = this.findCatWithId.bind(this);
         this.newBookClick = this.newBookClick.bind(this);
+        this.refresh = this.refresh.bind(this);
+        this.fetchData = this.fetchData.bind(this);
     }
 
     componentWillMount(){
+        this.fetchData();
+    }
+
+    componentDidMount(){
+        this.setState({selectedCatIds: Array(this.state.categories.length).fill(false)})
+    }
+
+    fetchData(){
         axios.get("http://localhost:8080/categories").then(resp =>{
             console.log(resp.data)
             this.setState({categories: resp.data})
@@ -32,12 +40,9 @@ class BookContainer extends Component{
         axios.get("http://localhost:8080/languages").then(resp =>{
             this.setState({languages: resp.data})
         })
-        // axios.get("http://localhost:8080/books").then(resp =>{
-        //     this.setState({books: resp.data})
-        // })
-    }
-
-    componentDidMount(){
+        axios.get("http://localhost:8080/books").then(resp =>{
+            this.setState({books: resp.data})
+        })
         this.setState({selectedCatIds: Array(this.state.categories.length).fill(false)})
     }
 
@@ -62,7 +67,7 @@ class BookContainer extends Component{
 
     renderListItems(categoryId){
         let arr = this.state.books.map(book => {
-            if(book.category === categoryId){
+            if(book.category.id === categoryId){
                 return <ListGroupItem key={book.id} id={book.id} onClick={this.bookDetails}>{book.title} - {book.author}</ListGroupItem>
             }
             return null;
@@ -77,6 +82,10 @@ class BookContainer extends Component{
 
     newBookClick(){
         this.setState({selectedBook: {}, newBook: true});
+    }
+
+    refresh(){
+        this.fetchData();
     }
 
     render(){
@@ -102,8 +111,8 @@ class BookContainer extends Component{
                     {/* //forma */}
                     <Col xs="6" sm={{ size: 6, order: 2, offset: 1 }} >
                         {(!this.isEmpty(this.state.selectedBook) || this.state.newBook) &&
-                        <BookDetails update={!this.state.newBook} book={this.state.selectedBook} categories={this.state.categories} languages={this.state.languages}/>}
-                        
+                        <BookDetails update={!this.state.newBook} book={this.state.selectedBook} categories={this.state.categories} languages={this.state.languages}
+                        refresh={this.refresh}/>}
                     </Col>
                 </Row>
             </Container>

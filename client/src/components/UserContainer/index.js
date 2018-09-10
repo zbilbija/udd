@@ -16,18 +16,18 @@ class UserContainer extends Component{
         }
         this.userDetails = this.userDetails.bind(this);
         this.newUserClick = this.newUserClick.bind(this);
+        this.updateData = this.updateData.bind(this);
     }
 
     componentWillReceiveProps(){
-        axios.get("http://localhost:8080/users").then(resp => {
-            this.setState({users: resp.data})
-        })
-        axios.get("http://localhost:8080/categories").then(resp =>{
-            this.setState({categories: resp.data})
-        })
+        this.updateData()
     }
 
     componentWillMount(){
+        this.updateData();
+    }
+
+    updateData(){
         axios.get("http://localhost:8080/users").then(resp => {
             this.setState({users: resp.data})
         })

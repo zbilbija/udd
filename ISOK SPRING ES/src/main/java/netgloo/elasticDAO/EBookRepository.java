@@ -40,7 +40,7 @@ public class EBookRepository {
 
 
 	public EBook insertEBook(EBook book){
-		  book.setId(UUID.randomUUID().toString());
+		  //book.setId(UUID.randomUUID().toString());
 		  Map dataMap = objectMapper.convertValue(book, Map.class);
 		  IndexRequest indexRequest = new IndexRequest(INDEX, TYPE, book.getId())
 		                .source(dataMap);

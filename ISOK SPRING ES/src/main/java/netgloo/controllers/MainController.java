@@ -145,73 +145,12 @@ public class MainController {
 		return ResponseEntity.status(HttpStatus.OK).body(foundLangs);
 	}
 	
-	//TODO: BOOK DATA-NOT ELASTIC
-	@RequestMapping(value = "/upload/{username}", method = RequestMethod.POST)
+	//TODO: BOOK DATA -> NOT ELASTIC RELATED
+	@RequestMapping(value="/books",  method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<Object> uploadFiles(@PathVariable String username, @RequestBody MultipartFile[] files) {
-		
-		User us = ur.findByUsername(username);
-	    Book book = null;
-	    String filePath = System.getProperty("user.dir") + "/src/main/resources/assets";
-	    
-	    for (MultipartFile file : files) {
-	        String extension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.'));
-
-	        String newFileName = file.getOriginalFilename(); //set unique name when saving on server
-	        File newFile;
-
-	        File imageFolder = new File(filePath);
-	        //check if parent folders exist else create it
-	        if(imageFolder .exists() || imageFolder .mkdirs()) {
-	        	int i = 1;
-	            while ((newFile = new File(imageFolder .getAbsolutePath() + "\\" + newFileName)).exists()) {
-	                newFileName = file.getOriginalFilename().substring(0, file.getOriginalFilename().lastIndexOf('.')) + i
-	                		+ extension; //generate new name if file already exists
-	                System.out.println(newFileName);
-	                i++;
-	            }
-	            try {
-	            	System.out.println("====================FILE PATH===============");
-	            	System.out.println(newFile.getAbsolutePath());
-	                file.transferTo(newFile);
-	                book = resolveMetadata(newFile.getAbsolutePath());
-	                book.setUser(us);
-	                book = br.save(book);
-	            } catch (IOException e) {
-	                e.printStackTrace();
-	            }
-	            
-	        } else {
-	            System.out.println("Could not create folder at " + imageFolder.getAbsolutePath());
-	        }
-	    }
-	    
-	    return ResponseEntity.status(HttpStatus.OK).body(book);
+	public ResponseEntity<Object> getBooks(HttpSession session) {
+		List<Book> foundBooks = (List<Book>) br.findAll();
+		return ResponseEntity.status(HttpStatus.OK).body(foundBooks);
 	}
-	
-	private Book resolveMetadata(String filePath) {
-		Book b = null;
-		try {
-			PdfReader reader = new PdfReader(filePath);
-			HashMap<String, String> info = reader.getInfo();
-			for (Map.Entry<String, String> entry : info.entrySet())
-			{
-			    System.out.println(entry.getKey() + "/" + entry.getValue());
-			}
-			b = new Book();
-			b.setAuthor(info.get("Author"));
-			b.setTitle(info.get("Title"));
-			b.setMime("application/pdf");
-			b.setKeywords(info.get("Keywords"));
-			b.setFileName(filePath);
-			Calendar c = PdfDate.decode(info.get("CreationDate"));
-			int year = c.get(Calendar.YEAR);
-			b.setPublicationYear(year);
-			reader.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return b;
-	}
+
 }
