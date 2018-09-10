@@ -12,6 +12,7 @@ class SearchForm extends Component{
         }
         this.updateState = this.updateState.bind(this);
         this.submitQuery = this.submitQuery.bind(this);
+        this.updateSearchType = this.updateSearchType.bind(this);
     }
 
     submitQuery(){
@@ -28,6 +29,10 @@ class SearchForm extends Component{
         else
             newState[event.target.name] = event.target.value;
         this.setState({book: newState})
+    }
+
+    updateSearchType(event){
+        this.setState({searchType: event.target.value})
     }
 
     render(){
@@ -58,6 +63,12 @@ class SearchForm extends Component{
                     <FormGroup>
                         <Label for="category">Category</Label>
                         <Input type="text" id="category" name="category" onChange={this.updateState} />
+                    </FormGroup>
+                    <FormGroup>
+                    <Input type="select" name="searchType" id="searchType" onChange={this.updateSearchType}>
+                        <option value="AND">Match all fields</option>
+                        <option value="OR">Match some fields</option>
+                    </Input>
                     </FormGroup>
                     <Button color="success" onChange={this.submitQuery}>Search</Button>
                     <Button color="danger" onChange={this.props.reset}>Reset results</Button>
