@@ -7,16 +7,19 @@ class UserContainer extends Component{
 
     constructor(props){
         super(props);
+        let us = JSON.parse(localStorage.getItem("user"));
         this.state={
             users: [],
             categories: [],
             selectedUser: {},
             newUser: false,
-            rand: this.props.rand
+            rand: this.props.rand,
+            stored: us ? us.username : ''
         }
         this.userDetails = this.userDetails.bind(this);
         this.newUserClick = this.newUserClick.bind(this);
         this.updateData = this.updateData.bind(this);
+        this.refresh = this.refresh.bind(this);
     }
 
     componentWillReceiveProps(){
@@ -31,7 +34,7 @@ class UserContainer extends Component{
         axios.get("http://localhost:8080/users").then(resp => {
             this.setState({users: resp.data})
         })
-        axios.get("http://localhost:8080/categories").then(resp =>{
+        axios.get("http://localhost:8080/categories/" + this.state.stored).then(resp =>{
             this.setState({categories: resp.data})
         })
     }
@@ -51,6 +54,10 @@ class UserContainer extends Component{
 
     newUserClick(){
         this.setState({selectedUser: {}, newUser: true});
+    }
+
+    refresh(){
+        this.updateData()
     }
 
     render(){
@@ -73,7 +80,7 @@ class UserContainer extends Component{
                     {/* //forma */}
                     <Col xs="6" sm={{ size: 6, order: 2, offset: 1 }} >
                         {(!this.isEmpty(this.state.selectedUser) || this.state.newUser) &&
-                        <UserDetails user={this.state.selectedUser} categories={this.state.categories}/>}
+                        <UserDetails refresh={this.refresh} user={this.state.selectedUser} categories={this.state.categories}/>}
                         
                     </Col>
                 </Row>

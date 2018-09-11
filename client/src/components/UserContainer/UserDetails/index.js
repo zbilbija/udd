@@ -36,7 +36,9 @@ class UserDetails extends Component{
     }
 
     sendChanges(){
-       //axios.post("http://localhost:8080/user/" + this.state.user.username, this.state.user)
+       axios.post("http://localhost:8080/addUser", this.state.user).then(resp => {
+           this.props.refresh();
+       })
     }
 
     render(){

@@ -19,6 +19,7 @@ class Header extends Component{
     logout(){
         axios.get("http://localhost:8080/logout").then(resp => {
             localStorage.removeItem("user");
+            this.props.refresh();
         })
     }
 

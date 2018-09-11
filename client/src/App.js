@@ -14,6 +14,7 @@ class App extends Component {
       user:  us
     }
     this.storeUser = this.storeUser.bind(this);
+    this.refresh = this.refresh.bind(this);
   }
 
   componentWillMount(){
@@ -28,11 +29,16 @@ class App extends Component {
     this.setState({user: info})
   }
 
+  refresh(){
+    let s = JSON.parse(localStorage.getItem("user"));
+    this.setState({user: s});
+  }
+
   render() {
     return (
       <div >
         <header>
-          <Header user={this.state.user}/>
+          <Header user={this.state.user} refresh={this.refresh}/>
         </header>
         <div>
           {this.state.user && <Main />}

@@ -6,31 +6,31 @@ import axios from "axios";
 class CategoryContainer extends Component{
     constructor(props){
         super(props);
+        let us = JSON.parse(localStorage.getItem("user"));
         this.state={
             categories: [],
             selectedCat: {},
             newCat: false,
-            rand: this.props.rand
+            rand: this.props.rand,
+            username: us ? us.username : ""
         }
         this.catDetails = this.catDetails.bind(this);
         this.newCatClick = this.newCatClick.bind(this);
+        this.refresh = this.refresh.bind(this);
+        this.fetchData = this.fetchData.bind(this);
     }
 
     componentWillReceiveProps(){
-        axios.get("http://localhost:8080/categories").then(resp =>{
-            this.setState({categories: resp.data})
-        })
+        this.fetchData()
     }
 
     componentWillMount(){
-        axios.get("http://localhost:8080/categories").then(resp =>{
-            this.setState({categories: resp.data})
-        })
+       this.fetchData()
     }
 
     catDetails(event){
         let cat = this.state.categories.find(us => us.id === parseInt(event.target.id, 10))
-        this.setState({selectedCat: cat, newCat:false});
+        this.setState({selectedCat: cat, newCat:false})
     }
 
     isEmpty(obj) {
@@ -42,7 +42,17 @@ class CategoryContainer extends Component{
     }
 
     newCatClick(){
-        this.setState({selectedCat: {}, newCat: true});
+        this.setState({selectedCat: {}, newCat: true})
+    }
+
+    refresh(){
+        this.fetchData()
+    }
+
+    fetchData(){
+        axios.get("http://localhost:8080/categories/" + this.state.username).then(resp =>{
+            this.setState({categories: resp.data})
+        })
     }
 
     render(){
@@ -65,7 +75,7 @@ class CategoryContainer extends Component{
                     {/* //forma */}
                     <Col xs="6" sm={{ size: 6, order: 2, offset: 1 }} >
                         {(!this.isEmpty(this.state.selectedCat) || this.state.newCat) &&
-                        <CategoryDetails category={this.state.selectedCat}/>}
+                        <CategoryDetails refresh={this.refresh} category={this.state.selectedCat}/>}
                         
                     </Col>
                 </Row>

@@ -85,7 +85,8 @@ class BookDetails extends Component{
                     <FormGroup>
                         <Label for="bookFile">Upload book</Label>
                         <Input type="file" name="file" id="bookFile" onChange={this.sendFileForMetadata} accept=".pdf"/>
-                        <FormText color="muted">File on server: {this.state.book.fileName.substring(this.state.book.fileName.lastIndexOf("\\")+1)}</FormText>
+                        {this.state.book.fileName && <FormText color="muted">File on server: {this.state.book.fileName.substring(this.state.book.fileName.lastIndexOf("\\")+1)}</FormText>}
+                        
                     </FormGroup>
                     {this.state.update &&
                         <span>

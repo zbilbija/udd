@@ -1,5 +1,6 @@
 package netgloo.controllers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
@@ -23,6 +24,7 @@ import netgloo.models.Book;
 import netgloo.models.Category;
 import netgloo.models.Language;
 import netgloo.models.User;
+import netgloo.pojo.ChangePass;
 
 @RestController
 @CrossOrigin( origins = "*")
@@ -55,13 +57,15 @@ public class MainController {
 		cr.save(cat);
 		cr.save(cat2);
 		
-		User u = new User("Dusan", "Jeftic", "Dule", "pass", "admin", cat, null);
+		User u = new User("Dusan", "Jeftic", "Dule", "pass", "admin", null, null);
 		User u2 = new User("Marko", "Jelaca", "Maki", "pass", "pretplatnik", cat2, null);
 		ur.save(u);
 		ur.save(u2);
 		
 		return "OK";
 	}
+	
+	//TODO: USER FUNCTIONS 
 	
 	@RequestMapping(value="/login",  method = RequestMethod.POST)
 	@ResponseBody
@@ -112,6 +116,21 @@ public class MainController {
 		session.setAttribute("user", sessionUser);
 		return ResponseEntity.status(HttpStatus.OK).body(sessionUser);
 	}
+
+	@RequestMapping(value="/changePass",  method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Object> changePass(@RequestBody ChangePass u, HttpSession session) {
+		User foundUser = ur.findByUsername(u.getUsername()) ;
+		if(foundUser == null) {
+			return ResponseEntity.status(HttpStatus.OK).body("{\"error\":\"User not found\"}");
+		}
+		foundUser.setUserPassword(u.getPass());
+		foundUser = ur.save(foundUser);
+		session.setAttribute("user", foundUser);
+		return ResponseEntity.status(HttpStatus.OK).body(foundUser);
+	}
+	
+	//TODO: FETCH DATA
 	
 	@RequestMapping(value="/users",  method = RequestMethod.GET)
 	@ResponseBody
@@ -120,12 +139,18 @@ public class MainController {
 		return ResponseEntity.status(HttpStatus.OK).body(foundUsers);
 	}
 	
-	//TODO: FETCH DATA
-	
-	@RequestMapping(value="/categories",  method = RequestMethod.GET)
+	@RequestMapping(value="/categories/{username}",  method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<Object> getCategories(HttpSession session) {
-		List<Category> foundCats = (List<Category>) cr.findAll();
+	public ResponseEntity<Object> getCategories(@PathVariable String username, HttpSession session) {
+		List<Category> foundCats = new ArrayList<Category>();
+		if(username != "") {
+			User u = ur.findByUsername(username);
+			if(u.getCategory() != null)
+				foundCats.add(u.getCategory());
+			else
+				foundCats = (List<Category>) cr.findAll();
+		} else
+			foundCats = (List<Category>) cr.findAll();
 		return ResponseEntity.status(HttpStatus.OK).body(foundCats);
 	}
 	
@@ -136,12 +161,36 @@ public class MainController {
 		return ResponseEntity.status(HttpStatus.OK).body(foundLangs);
 	}
 	
-	//TODO: BOOK DATA -> NOT ELASTIC RELATED
-	@RequestMapping(value="/books",  method = RequestMethod.GET)
+	@RequestMapping(value="/books/{username}",  method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<Object> getBooks(HttpSession session) {
-		List<Book> foundBooks = (List<Book>) br.findAll();
+	public ResponseEntity<Object> getBooks(@PathVariable String username, HttpSession session) {
+		List<Book> foundBooks = new ArrayList<Book>();
+		if(username != "") {
+			User u = ur.findByUsername(username);
+			if(u.getCategory() != null)
+				foundBooks = br.findByCategory(u.getCategory());
+			else
+				foundBooks = (List<Book>)br.findAll();
+		} else 
+			foundBooks =(List<Book>) br.findAll();
 		return ResponseEntity.status(HttpStatus.OK).body(foundBooks);
 	}
 
+	@RequestMapping(value="/addCategory",  method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Object> addCategory(@RequestBody Category c, HttpSession session) {
+		c = cr.save(c);
+		return ResponseEntity.status(HttpStatus.OK).body(c);
+	}
+	
+	@RequestMapping(value="/addUser",  method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Object> addUser(@RequestBody User u, HttpSession session) {
+		if(u.getCategory() != null) {
+			Category c = cr.findOne(u.getCategory().getId());
+			u.setCategory(c);
+		}
+		u = ur.save(u);
+		return ResponseEntity.status(HttpStatus.OK).body(u);
+	}
 }

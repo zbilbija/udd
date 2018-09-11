@@ -37,7 +37,7 @@ class ProfileForm extends Component{
     }
 
     checkPass(event){
-        if(event.target.value !== this.state.user.password){
+        if(event.target.value !== this.state.user.userPassword){
             this.setState({validNewPass: false})
         } else {
             this.setState({validNewPass: !this.state.validNewPass})
@@ -45,7 +45,10 @@ class ProfileForm extends Component{
     }
 
     submitPass(){
-        //axios request with password from this.state.user.password
+        let obj = {username: this.state.user.username, pass: this.state.user.userPassword}
+        axios.post("http://localhost:8080/changePass", obj).then(resp=>{
+            localStorage.setItem("user", JSON.stringify(resp.data));
+        })
     }
 
     render(){
@@ -76,8 +79,8 @@ class ProfileForm extends Component{
                         <h3>Change password</h3>
                         <Form>
                             <FormGroup>
-                                <Label for="password">Enter new password</Label>
-                                <Input type="password" name="password" id="password" onChange={this.updateState}/>
+                                <Label for="userPassword">Enter new password</Label>
+                                <Input type="password" name="userPassword" id="userPassword" onChange={this.updateState}/>
                             </FormGroup>
                             <FormGroup>
                                 <Label for="password2">Re-enter new password</Label>

@@ -7,13 +7,15 @@ class BookContainer extends Component{
 
     constructor(props){
         super(props);
+        let us = JSON.parse(localStorage.getItem("user"));
         this.state={
             books: [],
             categories: [],
             languages: [],
             selectedCatIds:[],
             selectedBook: {},
-            newBook: false
+            newBook: false,
+            user: us ? us : {}
         }
         this.toggleBooks = this.toggleBooks.bind(this);
         this.bookDetails = this.bookDetails.bind(this);
@@ -33,14 +35,14 @@ class BookContainer extends Component{
     }
 
     fetchData(){
-        axios.get("http://localhost:8080/categories").then(resp =>{
+        axios.get("http://localhost:8080/categories/" + this.state.user.username).then(resp =>{
             console.log(resp.data)
             this.setState({categories: resp.data})
         })
         axios.get("http://localhost:8080/languages").then(resp =>{
             this.setState({languages: resp.data})
         })
-        axios.get("http://localhost:8080/books").then(resp =>{
+        axios.get("http://localhost:8080/books/" + this.state.user.username).then(resp =>{
             this.setState({books: resp.data})
         })
         this.setState({selectedCatIds: Array(this.state.categories.length).fill(false)})
@@ -95,7 +97,7 @@ class BookContainer extends Component{
                     <Col sm="4" style={{ marginLeft: "20px"}}>
                         <Row>
                            <h4>List of books, grouped by category</h4>
-                           <Button color="success" onClick={this.newBookClick}>Add book</Button>
+                           {this.state.user.type === "admin" && <Button color="success" onClick={this.newBookClick}>Add book</Button>} 
                         </Row>
                         {this.state.categories.map( (cat, i) => {
                             return( <div key={i}>

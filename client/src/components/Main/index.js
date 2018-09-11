@@ -42,11 +42,13 @@ class Main extends Component{
                         List all books
                     </NavLink>
                 </NavItem>
-                <NavItem>
-                    <NavLink className={classnames({ active: this.state.activeTab === '2' })} onClick={() => { this.toggle('2'); }}>
-                        List all categories
-                    </NavLink>
-                </NavItem>
+                {this.state.userType === "admin" &&
+                    <NavItem>
+                        <NavLink className={classnames({ active: this.state.activeTab === '2' })} onClick={() => { this.toggle('2'); }}>
+                            List all categories
+                        </NavLink>
+                    </NavItem>
+                }
                 {this.state.userType === "admin" && <NavItem>
                     <NavLink className={classnames({ active: this.state.activeTab === '3' })} onClick={() => { this.toggle('3'); }}>
                         List all users
