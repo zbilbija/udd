@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import {Button, Form, FormGroup,FormText, Label, Input} from 'reactstrap';
-import axios from 'axios';
+import {Button, Form, FormGroup, Label, Input} from 'reactstrap';
 
 class EbookDetails extends Component{
     constructor(props){
@@ -20,10 +19,20 @@ class EbookDetails extends Component{
     }
 
     sendChanges(){
-        axios.post("http://localhost:8080/searchBooks/add", this.state.book)
-            .then(resp => {
-                 console.log(resp.data)
-            })
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', 'http://localhost:8080/searchBooks/download/'+this.state.book.id, true);
+        xhr.responseType = 'arraybuffer';
+        var that = this;
+        xhr.onload = function(e) {
+            if (this.status === 200) {
+                var blob=new Blob([this.response], {type:"application/pdf"});
+                var link=document.createElement('a');
+                link.href=window.URL.createObjectURL(blob);
+                link.download= that.state.book.title;
+                link.click();
+            }
+        };
+        xhr.send();
     }
 
     resolveLink(){

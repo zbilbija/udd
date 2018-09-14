@@ -1,14 +1,20 @@
 package netgloo.controllers;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -51,12 +57,19 @@ public class ElasticController {
 	private CategoryRepo cr;
 	
 	private EBookRepository ebr;
-
+	
 	public ElasticController(EBookRepository ebr) {
 		super();
 		this.ebr = ebr;
 	}
-			
+	
+	@RequestMapping(value="/fetchAll",  method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<Object> getAll(){
+		List<EBook> list = ebr.fetchAllEBooks();
+		return ResponseEntity.status(HttpStatus.OK).body(list);
+	}
+	
 	@RequestMapping(value = "/upload/{username}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Object> uploadFiles(@PathVariable String username, @RequestBody MultipartFile[] files) {
@@ -100,13 +113,6 @@ public class ElasticController {
 	    return ResponseEntity.status(HttpStatus.OK).body(book);
 	}
 	
-	@RequestMapping(value="/fetchAll",  method = RequestMethod.GET)
-	@ResponseBody
-	public ResponseEntity<Object> getAll(){
-		List<EBook> list = ebr.fetchAllEBooks();
-		return ResponseEntity.status(HttpStatus.OK).body(list);
-	}
-	
 	@RequestMapping(value="/add",  method = RequestMethod.POST)
 	@ResponseBody
     public ResponseEntity<Object> insertBook(@RequestBody Book book) throws Exception{
@@ -124,6 +130,33 @@ public class ElasticController {
 		System.out.println("Added to elastic " + result.toString());
 		return ResponseEntity.status(HttpStatus.OK).body(bookWithMeta);
     }
+	
+	@RequestMapping(value="/query/{booleanType}",  method = RequestMethod.POST)
+	@ResponseBody
+    public ResponseEntity<Object> searchArchive(@PathVariable String booleanType, @RequestBody EBook book) throws Exception{
+		
+		return ResponseEntity.status(HttpStatus.OK).body(null);
+	}
+	
+	@RequestMapping(value="/download/{id}",  method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<Object> downloadBook(@PathVariable String id){
+		System.out.println(id);
+		Book b = br.findOne(Integer.parseInt(id));
+		File resource = new File(b.getFileName());
+		try {
+			InputStreamResource isr = new InputStreamResource(new FileInputStream(resource));
+			String contentType = "application/pdf";
+			return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.parseMediaType(contentType))
+					.contentLength(resource.length())
+					.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" +resource.getName() +"\"")
+					.body(isr);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return ResponseEntity.status(HttpStatus.OK).body(null);
+	}
 	
 	private Book resolveMetadata(String filePath) {
 		Book b = null;

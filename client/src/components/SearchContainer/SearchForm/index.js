@@ -16,7 +16,7 @@ class SearchForm extends Component{
     }
 
     submitQuery(){
-        axios.post("http://localhost:8080/searchBooks/query" + this.state.searchType, this.state.book)
+        axios.post("http://localhost:8080/searchBooks/query/" + this.state.searchType, this.state.book)
         .then(resp => {
             console.log(resp.data);
         })

@@ -123,6 +123,11 @@ public class EBookRepository {
     	return result;
     }
     
+    public List<EBook> search(EBook book, boolean inclusive){
+    	
+    	return null;
+    }
+    
     private EBook fromMapToEBook(Map<String, Object> map) {
     	EBook book = new EBook();
     	book.setFileName((String)map.get("fileName"));
