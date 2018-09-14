@@ -23,6 +23,8 @@ public class EBook {
 	
 	private String mime;
 	
+	private String text;
+	
 	private String category;
 	
 	private String language;
@@ -33,7 +35,7 @@ public class EBook {
 	}
 
 	public EBook(String id, String title, String author, String keywords, int publicationYear, String fileName,
-			String mime, String category, String language) {
+			String mime, String text, String category, String language) {
 		super();
 		this.id = id;
 		this.title = title;
@@ -42,6 +44,7 @@ public class EBook {
 		this.publicationYear = publicationYear;
 		this.fileName = fileName;
 		this.mime = mime;
+		this.text = text;
 		this.category = category;
 		this.language = language;
 	}
@@ -124,5 +127,13 @@ public class EBook {
 		return "EBook [id=" + id + ", title=" + title + ", author=" + author + ", keywords=" + keywords
 				+ ", publicationYear=" + publicationYear + ", fileName=" + fileName + ", mime=" + mime + ", category="
 				+ category + ", language=" + language + "]";
+	}
+
+	public String getText() {
+		return text;
+	}
+
+	public void setText(String text) {
+		this.text = text;
 	}
 }

@@ -39,7 +39,7 @@ class EbookDetails extends Component{
         if(this.state.user.type === "admin")
             return true
         else if (this.state.user.type === "pretplatnik"){
-            if (typeof this.state.user.categroy === "undefined")
+            if (typeof this.state.user.category === "undefined")
                 return true;
             else if(this.state.book.category === this.state.user.category.name)
                 return true

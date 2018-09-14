@@ -197,6 +197,7 @@ public class ElasticController {
 		bk.setKeywords(book.getKeywords());
 		bk.setMime(book.getMime());
 		bk.setPublicationYear(book.getPublicationYear());
+		bk.setText(text);
 		return ebr.insertEBook(bk);
 	}
 	
