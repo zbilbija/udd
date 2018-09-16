@@ -8,70 +8,75 @@ class SearchForm extends Component{
         super(props);
         this.state={
             book: {},
-            searchType: ''
+            fields: ['title', 'author', 'keywords', 'text', 'language'],
+            types: ['field', 'phrase', 'fuzzy'],
+            selectedField: {field: "", value: ""},
+            searchType: ""
         }
-        this.updateState = this.updateState.bind(this);
         this.submitQuery = this.submitQuery.bind(this);
+        this.updateSearchValue = this.updateSearchValue.bind(this);
         this.updateSearchType = this.updateSearchType.bind(this);
+        this.updateSearchField = this.updateSearchField.bind(this);
     }
 
     submitQuery(){
-        axios.post("http://localhost:8080/searchBooks/query/" + this.state.searchType, this.state.book)
+        if(this.state.selectedField.field === ""){
+            let obj = this.state.selectedField;
+            obj.field = this.state.fields[0];
+            this.setState({selectedField: obj})
+        }
+        if(this.state.searchType === ""){
+            this.setState({searchType: this.state.types[0]});
+        }
+        axios.post("http://localhost:8080/searchBooks/query/" + this.state.searchType, this.state.selectedField)
         .then(resp => {
             console.log(resp.data);
+            this.props.display(resp.data);
         })
-    }
-
-    updateState(event){
-        let newState = this.state.book;
-        if(event.target.name === "publicationYear")
-            newState[event.target.name] = parseInt(event.target.value, 10);
-        else
-            newState[event.target.name] = event.target.value;
-        this.setState({book: newState})
     }
 
     updateSearchType(event){
         this.setState({searchType: event.target.value})
     }
 
+    updateSearchField(event){
+        let obj = this.state.selectedField;
+        obj.field = event.target.value;
+        this.setState({selectedField: obj});
+    }
+
+    updateSearchValue(event){
+        let obj = this.state.selectedField;
+        obj.value = event.target.value;
+        this.setState({selectedField: obj});
+    }
+
     render(){
         return (
             <div>
-                <h4>Search form</h4>
+                <h4>Simple search form</h4>
                 <Form>
                     <FormGroup>
-                        <Label for="title">Book title</Label>
-                        <Input type="text" name="title" id="title" onChange={this.updateState}/>
+                         <Label for="field">Select search field</Label>
+                        <Input type="select" name="field" id="field" onChange={this.updateSearchField}>
+                            {this.state.fields.map(t => {
+                                return <option value={t}>{t}</option>
+                            })}
+                        </Input>
                     </FormGroup>
                     <FormGroup>
-                        <Label for="author">Author</Label>
-                        <Input type="text" id="author" name="author" onChange={this.updateState}/>
-                    </FormGroup>
-                    <FormGroup>
-                        <Label for="keywords">Keywords</Label>
-                        <Input type="text" name="keywords" id="keywords" onChange={this.updateState}/>
-                    </FormGroup>
-                    <FormGroup>
-                        <Label for="language">Language</Label>
-                        <Input  type="text" id="language" name="language" onChange={this.updateState}/>
-                    </FormGroup>
-                    <FormGroup>
-                        <Label for="publicationYear">Publication Year</Label>
-                        <Input type="number" name="publicationYear" id="publicationYear" onChange={this.updateState} />
-                    </FormGroup>
-                    <FormGroup>
-                        <Label for="category">Category</Label>
-                        <Input type="text" id="category" name="category" onChange={this.updateState} />
+                        <Label for="value">Type value for search</Label>
+                        <Input type="text" id="value" name="value" onChange={this.updateSearchValue}/>
                     </FormGroup>
                     <FormGroup>
                     <Input type="select" name="searchType" id="searchType" onChange={this.updateSearchType}>
-                        <option value="AND">Match all fields</option>
-                        <option value="OR">Match some fields</option>
+                        {this.state.types.map(t => {
+                            return <option value={t}>{t}</option>
+                        })}
                     </Input>
                     </FormGroup>
-                    <Button color="success" onChange={this.submitQuery}>Search</Button>
-                    <Button color="danger" onChange={this.props.reset}>Reset results</Button>
+                    <Button color="success" onClick={this.submitQuery}>Search</Button>
+                    <Button color="danger" onClick={this.props.reset}>Reset results</Button>
                 </Form>
             </div>
         )

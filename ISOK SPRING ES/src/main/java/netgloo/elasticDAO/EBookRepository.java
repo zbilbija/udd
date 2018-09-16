@@ -2,7 +2,6 @@ package netgloo.elasticDAO;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,21 +17,27 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.text.Text;
+import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.springframework.stereotype.Repository;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import netgloo.elasticModels.EBook;
+import netgloo.pojo.SearchResult;
 
 @Repository
 public class EBookRepository {
 	
-	private final String INDEX = "bookdata";
+	private final String INDEX = "bookrepo";
     private final String TYPE = "books";
 
     private RestHighLevelClient restHighLevelClient;
@@ -61,7 +66,7 @@ public class EBookRepository {
 		  return book;
 	}
 	
-	public EBook getEBookById(String id){
+	public SearchResult getEBookById(String id){
         GetRequest getRequest = new GetRequest(INDEX, TYPE, id);
         GetResponse getResponse = null;
         try {
@@ -76,7 +81,7 @@ public class EBookRepository {
         return fromMapToEBook(sourceAsMap);
     }
 	
-	public EBook updateEBookById(String id, EBook book){
+	public SearchResult updateEBookById(String id, EBook book){
         UpdateRequest updateRequest = new UpdateRequest(INDEX, TYPE, id)
                 .fetchSource(true);    // Fetch Object after its update
         //Map<String, Object> error = new HashMap<>();
@@ -104,17 +109,17 @@ public class EBookRepository {
         }
     }
     
-    public List<EBook> fetchAllEBooks(){
+    public List<SearchResult> fetchAllEBooks(){
     	SearchRequest searchRequest = new SearchRequest(); 
     	SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder(); 
     	searchSourceBuilder.query(QueryBuilders.matchAllQuery()); 
     	searchRequest.source(searchSourceBuilder);
-    	List<EBook> result = new ArrayList<EBook>();
+    	List<SearchResult> result = new ArrayList<SearchResult>();
     	try {
 			SearchResponse response = restHighLevelClient.search(searchRequest);
 			for(SearchHit hit : response.getHits().getHits()) {
-				Map<String, Object> source = hit.getSourceAsMap();
-				result.add(fromMapToEBook(source));
+				
+				result.add(fromMapToEBook(hit, ""));
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -123,12 +128,61 @@ public class EBookRepository {
     	return result;
     }
     
-    public List<EBook> search(EBook book, boolean inclusive){
-    	
-    	return null;
+    public List<SearchResult> regularQuery(String field, String value){
+    	SearchRequest searchRequest = new SearchRequest(); 
+    	SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+    	QueryBuilder matchQueryBuilder = QueryBuilders.matchPhraseQuery(field, value);
+    	searchSourceBuilder.query(matchQueryBuilder);
+    	if(field.equals("text")) {
+	    	HighlightBuilder highlightBuilder = new HighlightBuilder();
+	    	HighlightBuilder.Field highlightUser = new HighlightBuilder.Field(field);
+	    	highlightBuilder.field(highlightUser);
+	    	searchSourceBuilder.highlighter(highlightBuilder);
+    	}
+    	searchRequest.source(searchSourceBuilder);
+    	List<SearchResult> result = new ArrayList<SearchResult>();
+    	try {
+			SearchResponse response = restHighLevelClient.search(searchRequest);
+			System.out.println(response.getHits().totalHits);
+			for(SearchHit hit : response.getHits().getHits()) {
+				result.add(fromMapToEBook(hit, field));
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	return result;
     }
     
-    private EBook fromMapToEBook(Map<String, Object> map) {
+    public List<SearchResult> fuzzyQuery(String field, String value){
+    	SearchRequest searchRequest = new SearchRequest(); 
+    	SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+    	QueryBuilder fuzzyQueryBuilder = QueryBuilders.fuzzyQuery(field, value).fuzziness(Fuzziness.AUTO);
+    	searchSourceBuilder.query(fuzzyQueryBuilder);
+    	if(field.equals("text")) {
+	    	HighlightBuilder highlightBuilder = new HighlightBuilder();
+	    	HighlightBuilder.Field highlightUser = new HighlightBuilder.Field(field);
+	    	highlightBuilder.field(highlightUser);
+	    	searchSourceBuilder.highlighter(highlightBuilder);
+    	}
+    	searchRequest.source(searchSourceBuilder);
+    	List<SearchResult> result = new ArrayList<SearchResult>();
+    	try {
+			SearchResponse response = restHighLevelClient.search(searchRequest);
+			System.out.println(response.getHits().totalHits);
+			for(SearchHit hit : response.getHits().getHits()) {
+				result.add(fromMapToEBook(hit, field));
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	return result;
+    }
+    
+    private SearchResult fromMapToEBook(SearchHit hit, String field) {
+    	Map<String, Object> map = hit.getSourceAsMap();
+    	SearchResult retVal = new SearchResult();
     	EBook book = new EBook();
     	book.setFileName((String)map.get("fileName"));
     	book.setKeywords((String)map.get("keywords"));
@@ -139,6 +193,33 @@ public class EBookRepository {
     	book.setId((String)map.get("id"));
     	book.setTitle((String)map.get("title"));
     	book.setCategory((String)map.get("category"));
-    	return book;
+    	retVal.setBook(book);
+    	if(field.equals("text")) {
+    		String high = "";
+    		Map<String, HighlightField> highlightFields = hit.getHighlightFields();
+    	    HighlightField highlight = highlightFields.get("text");
+    	    for(Text t : highlight.fragments()) {
+    	    	high += t.string();
+    	    }
+    	    high = high.replaceAll("\\<.*?\\>", "");
+    	    retVal.setHighlight(high);
+    	}
+    	return retVal;
+    }
+    
+    private SearchResult fromMapToEBook(Map<String, Object> map) {
+    	SearchResult retVal = new SearchResult();
+    	EBook book = new EBook();
+    	book.setFileName((String)map.get("fileName"));
+    	book.setKeywords((String)map.get("keywords"));
+    	book.setAuthor((String)map.get("author"));
+    	book.setMime((String)map.get("mime"));
+    	book.setPublicationYear((Integer)map.get("publicationYear"));
+    	book.setLanguage((String)map.get("language"));
+    	book.setId((String)map.get("id"));
+    	book.setTitle((String)map.get("title"));
+    	book.setCategory((String)map.get("category"));
+    	retVal.setBook(book);
+    	return retVal;
     }
 }

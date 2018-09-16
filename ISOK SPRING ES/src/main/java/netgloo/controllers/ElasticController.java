@@ -4,12 +4,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.pdfbox.pdfparser.PDFParser;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -34,10 +37,13 @@ import netgloo.dao.LanguageRepo;
 import netgloo.dao.UserRepo;
 import netgloo.elasticDAO.EBookRepository;
 import netgloo.elasticModels.EBook;
+import netgloo.helpers.CirilicLatinConverter;
 import netgloo.models.Book;
 import netgloo.models.Category;
 import netgloo.models.Language;
 import netgloo.models.User;
+import netgloo.pojo.SearchResult;
+import netgloo.pojo.SimpleSearchParams;
 
 @RestController()
 @CrossOrigin( origins = "*")
@@ -66,7 +72,7 @@ public class ElasticController {
 	@RequestMapping(value="/fetchAll",  method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Object> getAll(){
-		List<EBook> list = ebr.fetchAllEBooks();
+		List<SearchResult> list = ebr.fetchAllEBooks();
 		return ResponseEntity.status(HttpStatus.OK).body(list);
 	}
 	
@@ -131,12 +137,32 @@ public class ElasticController {
 		return ResponseEntity.status(HttpStatus.OK).body(bookWithMeta);
     }
 	
-	@RequestMapping(value="/query/{booleanType}",  method = RequestMethod.POST)
+	@RequestMapping(value="/query/{searchType}",  method = RequestMethod.POST)
 	@ResponseBody
-    public ResponseEntity<Object> searchArchive(@PathVariable String booleanType, @RequestBody EBook book) throws Exception{
+    public ResponseEntity<Object> searchArchive(@PathVariable String searchType, @RequestBody SimpleSearchParams params) throws Exception{
+		System.out.println(toLowerCaseAndLatin(params.getValue()));
+		List<SearchResult> result = new ArrayList<SearchResult>();
+		if(searchType.equals("field")) {
+			System.out.println("Entered field");
+			result = ebr.regularQuery(params.getField(), toLowerCaseAndLatin(params.getValue()));
+		}
+		else if (searchType.equals("phrase")) {
+			System.out.println("phrase asked");
+		}
+		else if (searchType.equals("fuzzy")) {
+			System.out.println("fuzzy asked");
+		}
+		return ResponseEntity.status(HttpStatus.OK).body(result);
+	}
+	
+	
+	@RequestMapping(value="/queryAdvanced/{searchType}",  method = RequestMethod.POST)
+	@ResponseBody
+    public ResponseEntity<Object> searchArchiveAdvanced(@PathVariable String searchType, @RequestBody SimpleSearchParams params) throws Exception{
 		
 		return ResponseEntity.status(HttpStatus.OK).body(null);
 	}
+	
 	
 	@RequestMapping(value="/download/{id}",  method = RequestMethod.GET)
 	@ResponseBody
@@ -185,6 +211,9 @@ public class ElasticController {
 	}
 	
 	private EBook addBookToElastic(Book book) {
+		File file = new File(book.getFileName());
+		System.out.println(file);
+		PDFParser parser;
 		EBook bk = new EBook();
 		bk.setId(Integer.toString(book.getId()));
 		bk.setAuthor(book.getAuthor());
@@ -197,7 +226,15 @@ public class ElasticController {
 		bk.setKeywords(book.getKeywords());
 		bk.setMime(book.getMime());
 		bk.setPublicationYear(book.getPublicationYear());
-		bk.setText(text);
+		try {
+			PDDocument d = PDDocument.load(file);
+			PDFTextStripper textStripper = new PDFTextStripper();
+			String text = textStripper.getText(d);
+			bk.setText(text);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return ebr.insertEBook(bk);
 	}
 	
@@ -206,6 +243,12 @@ public class ElasticController {
 			return info.get(attr);
 		else
 			return "";
+	}
+	
+	private String toLowerCaseAndLatin(String s) {
+		String x = s.toLowerCase();
+		x = CirilicLatinConverter.cir2lat(x);
+		return x;
 	}
 	
 }

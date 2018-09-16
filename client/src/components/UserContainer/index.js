@@ -40,7 +40,7 @@ class UserContainer extends Component{
     }
 
     userDetails(event){
-        let user = this.state.user.find(us => us.id === parseInt(event.target.id, 10))
+        let user = this.state.users.find(us => us.id === parseInt(event.target.id, 10))
         this.setState({selectedUser: user});
     }
 

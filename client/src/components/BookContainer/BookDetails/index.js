@@ -28,6 +28,11 @@ class BookDetails extends Component{
     }
 
     sendChanges(){
+        if(this.state.book.language === null){
+            let newState =  this.state.book;
+            newState.language = this.state.languages[0];
+            this.setState({book: newState});
+        }
         axios.post("http://localhost:8080/searchBooks/add", this.state.book)
             .then(resp => {
                  console.log(resp.data)

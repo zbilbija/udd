@@ -20,6 +20,7 @@ class SearchContainer extends Component{
         this.bookDetails = this.bookDetails.bind(this);
         this.showSearchForm = this.showSearchForm.bind(this);
         this.refresh = this.refresh.bind(this);
+        this.displayResult = this.displayResult.bind(this);
     }
 
     componentWillMount(){
@@ -47,7 +48,7 @@ class SearchContainer extends Component{
     }
 
     bookDetails(event){
-        let book = this.state.books.find(book => book.id === event.target.id)
+        let book = this.state.books.find(res => res.book.id === event.target.id)
         this.setState({selectedBook: book, showSearchForm: false});
     }
 
@@ -57,6 +58,10 @@ class SearchContainer extends Component{
 
     refresh(){
         this.fetchData();
+    }
+
+    displayResult(data){
+        this.setState({books: data})
     }
 
     render(){
@@ -69,9 +74,10 @@ class SearchContainer extends Component{
                         </Row>
                         <Row><Button color="success" onClick={this.showSearchForm}>Display search options</Button></Row>
                         <ListGroup style={{marginBottom: "15px"}}>
-                            {this.state.books.map( (book) => {
-                                return <ListGroupItem key={book.id} id={book.id}>{book.title} - {book.author}
-                                        <Button key={book.title} id={book.id} color="info" onClick={this.bookDetails} style={{margin: "5px"}}>Details</Button>
+                            {this.state.books.map( (res) => {
+                                return <ListGroupItem key={res.book.id} id={res.book.id}>{res.book.title} - {res.book.author}
+                                        <Button key={res.book.title} id={res.book.id} color="info" onClick={this.bookDetails} style={{margin: "5px"}}>Details</Button>
+                                        {res.highlight && <p>{res.highlight}</p>}
                                     </ListGroupItem>
                             })}
                         </ListGroup>
@@ -80,7 +86,7 @@ class SearchContainer extends Component{
                     <Col xs="6" sm={{ size: 6, order: 2, offset: 1 }} >
                         {this.state.showSearchForm &&
                             <SearchForm categories={this.state.categories} languages={this.state.languages}
-                        reset={this.refresh}/>}
+                        reset={this.refresh} display={this.displayResult}/>}
                         {
                             (!this.state.showSearchForm && !this.isEmpty(this.state.selectedBook)) &&
                                 <EbookDetails book={this.state.selectedBook}/>
