@@ -131,6 +131,32 @@ public class EBookRepository {
     public List<SearchResult> regularQuery(String field, String value){
     	SearchRequest searchRequest = new SearchRequest(); 
     	SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+    	QueryBuilder matchQueryBuilder = QueryBuilders.termQuery(field, value);
+    	searchSourceBuilder.query(matchQueryBuilder);
+    	if(field.equals("text")) {
+	    	HighlightBuilder highlightBuilder = new HighlightBuilder();
+	    	HighlightBuilder.Field highlightUser = new HighlightBuilder.Field(field);
+	    	highlightBuilder.field(highlightUser);
+	    	searchSourceBuilder.highlighter(highlightBuilder);
+    	}
+    	searchRequest.source(searchSourceBuilder);
+    	List<SearchResult> result = new ArrayList<SearchResult>();
+    	try {
+			SearchResponse response = restHighLevelClient.search(searchRequest);
+			System.out.println(response.getHits().totalHits);
+			for(SearchHit hit : response.getHits().getHits()) {
+				result.add(fromMapToEBook(hit, field));
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	return result;
+    }
+    
+    public List<SearchResult> phraseQuesry(String field, String value){
+    	SearchRequest searchRequest = new SearchRequest(); 
+    	SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
     	QueryBuilder matchQueryBuilder = QueryBuilders.matchPhraseQuery(field, value);
     	searchSourceBuilder.query(matchQueryBuilder);
     	if(field.equals("text")) {
@@ -157,7 +183,7 @@ public class EBookRepository {
     public List<SearchResult> fuzzyQuery(String field, String value){
     	SearchRequest searchRequest = new SearchRequest(); 
     	SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-    	QueryBuilder fuzzyQueryBuilder = QueryBuilders.fuzzyQuery(field, value).fuzziness(Fuzziness.AUTO);
+    	QueryBuilder fuzzyQueryBuilder = QueryBuilders.fuzzyQuery(field, value).fuzziness(Fuzziness.TWO);
     	searchSourceBuilder.query(fuzzyQueryBuilder);
     	if(field.equals("text")) {
 	    	HighlightBuilder highlightBuilder = new HighlightBuilder();

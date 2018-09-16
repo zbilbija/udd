@@ -72,7 +72,8 @@ class SearchContainer extends Component{
                         <Row>
                            <h4>Search results:</h4>
                         </Row>
-                        <Row><Button color="success" onClick={this.showSearchForm}>Display search options</Button></Row>
+                        <Row style={{marginBottom: "15px"}}><Button color="primary" onClick={this.showSearchForm}>Display quick search</Button></Row>
+                        <Row style={{marginBottom: "15px"}}><Button color="secondary" onClick={this.showSearchForm}>Display advanced search</Button></Row>
                         <ListGroup style={{marginBottom: "15px"}}>
                             {this.state.books.map( (res) => {
                                 return <ListGroupItem key={res.book.id} id={res.book.id}>{res.book.title} - {res.book.author}

@@ -148,9 +148,11 @@ public class ElasticController {
 		}
 		else if (searchType.equals("phrase")) {
 			System.out.println("phrase asked");
+			result = ebr.phraseQuesry(params.getField(), toLowerCaseAndLatin(params.getValue()));
 		}
 		else if (searchType.equals("fuzzy")) {
 			System.out.println("fuzzy asked");
+			result = ebr.fuzzyQuery(params.getField(), toLowerCaseAndLatin(params.getValue()));
 		}
 		return ResponseEntity.status(HttpStatus.OK).body(result);
 	}
