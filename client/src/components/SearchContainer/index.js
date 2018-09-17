@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import {Container, Row, Col, ListGroup, ListGroupItem, Button} from 'reactstrap';
 import SearchForm from './SearchForm';
+import AdvancedSearchForm from './AdvancedSearchForm';
 import EbookDetails from './EbookDetails';
 import axios from "axios";
 
@@ -13,12 +14,14 @@ class SearchContainer extends Component{
             categories: [],
             languages: [],
             selectedBook: {},
-            showSearchForm: true,
+            showSimpleSearchForm: true,
+            showAdvanced: false,
             user: JSON.parse(localStorage.getItem("user")) || null
         }
         this.fetchData = this.fetchData.bind(this);
         this.bookDetails = this.bookDetails.bind(this);
-        this.showSearchForm = this.showSearchForm.bind(this);
+        this.showSimpleSearchForm = this.showSimpleSearchForm.bind(this);
+        this.showAdvancedSearchForm = this.showAdvancedSearchForm.bind(this);
         this.refresh = this.refresh.bind(this);
         this.displayResult = this.displayResult.bind(this);
     }
@@ -49,11 +52,15 @@ class SearchContainer extends Component{
 
     bookDetails(event){
         let book = this.state.books.find(res => res.book.id === event.target.id)
-        this.setState({selectedBook: book, showSearchForm: false});
+        this.setState({selectedBook: book, showSimpleSearchForm: false});
     }
 
-    showSearchForm(){
-        this.setState({selectedBook: {}, showSearchForm: true});
+    showSimpleSearchForm(){
+        this.setState({selectedBook: {}, showSimpleSearchForm: true, showAdvanced: false});
+    }
+
+    showAdvancedSearchForm(){
+        this.setState({selectedBook: {}, showSimpleSearchForm: false, showAdvanced: true});
     }
 
     refresh(){
@@ -72,8 +79,8 @@ class SearchContainer extends Component{
                         <Row>
                            <h4>Search results:</h4>
                         </Row>
-                        <Row style={{marginBottom: "15px"}}><Button color="primary" onClick={this.showSearchForm}>Display quick search</Button></Row>
-                        <Row style={{marginBottom: "15px"}}><Button color="secondary" onClick={this.showSearchForm}>Display advanced search</Button></Row>
+                        <Row style={{marginBottom: "15px"}}><Button color="primary" onClick={this.showSimpleSearchForm}>Display quick search</Button></Row>
+                        <Row style={{marginBottom: "15px"}}><Button color="secondary" onClick={this.showAdvancedSearchForm}>Display advanced search</Button></Row>
                         <ListGroup style={{marginBottom: "15px"}}>
                             {this.state.books.map( (res) => {
                                 return <ListGroupItem key={res.book.id} id={res.book.id}>{res.book.title} - {res.book.author}
@@ -85,11 +92,15 @@ class SearchContainer extends Component{
                     </Col>
                     {/* //forma */}
                     <Col xs="6" sm={{ size: 6, order: 2, offset: 1 }} >
-                        {this.state.showSearchForm &&
+                        {this.state.showSimpleSearchForm &&
                             <SearchForm categories={this.state.categories} languages={this.state.languages}
                         reset={this.refresh} display={this.displayResult}/>}
+
+                        {this.state.showAdvanced && 
+                        <AdvancedSearchForm reset={this.refresh} display={this.displayResult} />}
+
                         {
-                            (!this.state.showSearchForm && !this.isEmpty(this.state.selectedBook)) &&
+                            (!this.state.showSimpleSearchForm && !this.isEmpty(this.state.selectedBook)) &&
                                 <EbookDetails book={this.state.selectedBook}/>
                         }
                     </Col>

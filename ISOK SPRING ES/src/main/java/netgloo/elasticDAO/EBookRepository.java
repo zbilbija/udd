@@ -32,6 +32,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import netgloo.elasticModels.EBook;
+import netgloo.pojo.AdvancedSearchParams;
 import netgloo.pojo.SearchResult;
 
 @Repository
@@ -78,7 +79,7 @@ public class EBookRepository {
         for (Map.Entry<String, Object> entry : sourceAsMap.entrySet()) {
         	System.out.println(entry.getKey() + "/" + entry.getValue().toString());
         }
-        return fromMapToEBook(sourceAsMap);
+        return fromMapToResult(sourceAsMap);
     }
 	
 	public SearchResult updateEBookById(String id, EBook book){
@@ -91,7 +92,7 @@ public class EBookRepository {
             updateRequest.doc(bookJson, XContentType.JSON);
             UpdateResponse updateResponse = restHighLevelClient.update(updateRequest);
             Map<String, Object> sourceAsMap = updateResponse.getGetResult().sourceAsMap();
-            return fromMapToEBook(sourceAsMap);
+            return fromMapToResult(sourceAsMap);
         }catch (JsonProcessingException e){
             e.getMessage();
         } catch (java.io.IOException e){
@@ -119,7 +120,7 @@ public class EBookRepository {
 			SearchResponse response = restHighLevelClient.search(searchRequest);
 			for(SearchHit hit : response.getHits().getHits()) {
 				
-				result.add(fromMapToEBook(hit, ""));
+				result.add(fromMapToResult(hit, ""));
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -128,7 +129,7 @@ public class EBookRepository {
     	return result;
     }
     
-    public List<SearchResult> regularQuery(String field, String value){
+    public List<SearchResult> termQuery(String field, String value){
     	SearchRequest searchRequest = new SearchRequest(); 
     	SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
     	QueryBuilder matchQueryBuilder = QueryBuilders.termQuery(field, value);
@@ -145,7 +146,7 @@ public class EBookRepository {
 			SearchResponse response = restHighLevelClient.search(searchRequest);
 			System.out.println(response.getHits().totalHits);
 			for(SearchHit hit : response.getHits().getHits()) {
-				result.add(fromMapToEBook(hit, field));
+				result.add(fromMapToResult(hit, field));
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -154,7 +155,7 @@ public class EBookRepository {
     	return result;
     }
     
-    public List<SearchResult> phraseQuesry(String field, String value){
+    public List<SearchResult> phraseQuery(String field, String value){
     	SearchRequest searchRequest = new SearchRequest(); 
     	SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
     	QueryBuilder matchQueryBuilder = QueryBuilders.matchPhraseQuery(field, value);
@@ -171,7 +172,7 @@ public class EBookRepository {
 			SearchResponse response = restHighLevelClient.search(searchRequest);
 			System.out.println(response.getHits().totalHits);
 			for(SearchHit hit : response.getHits().getHits()) {
-				result.add(fromMapToEBook(hit, field));
+				result.add(fromMapToResult(hit, field));
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -197,7 +198,7 @@ public class EBookRepository {
 			SearchResponse response = restHighLevelClient.search(searchRequest);
 			System.out.println(response.getHits().totalHits);
 			for(SearchHit hit : response.getHits().getHits()) {
-				result.add(fromMapToEBook(hit, field));
+				result.add(fromMapToResult(hit, field));
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -206,7 +207,51 @@ public class EBookRepository {
     	return result;
     }
     
-    private SearchResult fromMapToEBook(SearchHit hit, String field) {
+    public List<SearchResult> booleanQuery(AdvancedSearchParams params, String type){
+    	String field = "";
+    	SearchRequest searchRequest = new SearchRequest(); 
+    	SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+    	QueryBuilder matchQueryBuilder1 = QueryBuilders.matchPhraseQuery(params.getField1(), params.getValue1());
+    	QueryBuilder matchQueryBuilder2 = QueryBuilders.matchPhraseQuery(params.getField2(), params.getValue2());
+    	QueryBuilder boolQueryBuilder = null;
+    	switch(type) {
+	    	case "AND":
+	    		boolQueryBuilder = QueryBuilders.boolQuery().must(matchQueryBuilder1).must(matchQueryBuilder2);
+	    		break;
+	    	case "OR":
+	    		boolQueryBuilder = QueryBuilders.boolQuery().should(matchQueryBuilder1).should(matchQueryBuilder2);
+	    		break;
+	    	case "NOT":
+	    		boolQueryBuilder = QueryBuilders.boolQuery().must(matchQueryBuilder1).mustNot(matchQueryBuilder2);
+	    		break;
+	    	default:
+	    		boolQueryBuilder = QueryBuilders.boolQuery().must(matchQueryBuilder1).must(matchQueryBuilder2);
+	    		break;
+    	}
+    	searchSourceBuilder.query(boolQueryBuilder);
+    	if(params.getField1().equals("text") || params.getField2().equals("text")) {
+	    	HighlightBuilder highlightBuilder = new HighlightBuilder();
+	    	HighlightBuilder.Field highlightUser = new HighlightBuilder.Field("text");
+	    	field = "text";
+	    	highlightBuilder.field(highlightUser);
+	    	searchSourceBuilder.highlighter(highlightBuilder);
+    	}
+    	searchRequest.source(searchSourceBuilder);
+    	List<SearchResult> result = new ArrayList<SearchResult>();
+    	try {
+			SearchResponse response = restHighLevelClient.search(searchRequest);
+			System.out.println(response.getHits().totalHits);
+			for(SearchHit hit : response.getHits().getHits()) {
+				result.add(fromMapToResult(hit, field));
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	return result;
+    }
+    
+    private SearchResult fromMapToResult(SearchHit hit, String field) {
     	Map<String, Object> map = hit.getSourceAsMap();
     	SearchResult retVal = new SearchResult();
     	EBook book = new EBook();
@@ -233,7 +278,7 @@ public class EBookRepository {
     	return retVal;
     }
     
-    private SearchResult fromMapToEBook(Map<String, Object> map) {
+    private SearchResult fromMapToResult(Map<String, Object> map) {
     	SearchResult retVal = new SearchResult();
     	EBook book = new EBook();
     	book.setFileName((String)map.get("fileName"));

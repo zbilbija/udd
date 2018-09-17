@@ -42,6 +42,7 @@ import netgloo.models.Book;
 import netgloo.models.Category;
 import netgloo.models.Language;
 import netgloo.models.User;
+import netgloo.pojo.AdvancedSearchParams;
 import netgloo.pojo.SearchResult;
 import netgloo.pojo.SimpleSearchParams;
 
@@ -144,11 +145,11 @@ public class ElasticController {
 		List<SearchResult> result = new ArrayList<SearchResult>();
 		if(searchType.equals("field")) {
 			System.out.println("Entered field");
-			result = ebr.regularQuery(params.getField(), toLowerCaseAndLatin(params.getValue()));
+			result = ebr.termQuery(params.getField(), toLowerCaseAndLatin(params.getValue()));
 		}
 		else if (searchType.equals("phrase")) {
 			System.out.println("phrase asked");
-			result = ebr.phraseQuesry(params.getField(), toLowerCaseAndLatin(params.getValue()));
+			result = ebr.phraseQuery(params.getField(), toLowerCaseAndLatin(params.getValue()));
 		}
 		else if (searchType.equals("fuzzy")) {
 			System.out.println("fuzzy asked");
@@ -160,9 +161,10 @@ public class ElasticController {
 	
 	@RequestMapping(value="/queryAdvanced/{searchType}",  method = RequestMethod.POST)
 	@ResponseBody
-    public ResponseEntity<Object> searchArchiveAdvanced(@PathVariable String searchType, @RequestBody SimpleSearchParams params) throws Exception{
-		
-		return ResponseEntity.status(HttpStatus.OK).body(null);
+    public ResponseEntity<Object> searchArchiveAdvanced(@PathVariable String searchType, @RequestBody AdvancedSearchParams params) throws Exception{
+		System.out.println(params);
+		List<SearchResult> result = ebr.booleanQuery(params, searchType);
+		return ResponseEntity.status(HttpStatus.OK).body(result);
 	}
 	
 	
