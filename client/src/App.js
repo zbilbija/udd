@@ -15,6 +15,7 @@ class App extends Component {
     }
     this.storeUser = this.storeUser.bind(this);
     this.refresh = this.refresh.bind(this);
+    this.setGuest = this.setGuest.bind(this);
   }
 
   componentWillMount(){
@@ -27,6 +28,11 @@ class App extends Component {
     localStorage.setItem("user", JSON.stringify(info));
     this.state.user = info
     this.setState({user: info})
+  }
+
+  setGuest(){
+    let guest = {username: "", userPassword: "", type: "guest"};
+    this.setState({user: guest});
   }
 
   refresh(){
@@ -42,7 +48,7 @@ class App extends Component {
         </header>
         <div>
           {this.state.user && <Main />}
-          {!this.state.user && <LoginBlock storeUser={this.storeUser}/>} 
+          {!this.state.user && <LoginBlock setGuest={this.setGuest} storeUser={this.storeUser}/>} 
         </div>
       </div>
     );

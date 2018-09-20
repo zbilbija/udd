@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {Form, Button, FormGroup, Label, Input} from 'reactstrap';
+import {Form, Button, FormGroup, Label, Input, FormFeedback} from 'reactstrap';
 import axios from 'axios';
 
 class SearchForm extends Component{
@@ -11,7 +11,8 @@ class SearchForm extends Component{
             fields: ['title', 'author', 'keywords', 'text', 'language'],
             types: ['field', 'phrase', 'fuzzy'],
             selectedField: {field: "", value: ""},
-            searchType: ""
+            searchType: "",
+            validValue: false
         }
         this.submitQuery = this.submitQuery.bind(this);
         this.updateSearchValue = this.updateSearchValue.bind(this);
@@ -48,6 +49,11 @@ class SearchForm extends Component{
     updateSearchValue(event){
         let obj = this.state.selectedField;
         obj.value = event.target.value;
+        if(event.target.value === ""){
+            this.setState({validValue: false});
+        } else {
+            this.setState({validValue: true});
+        }
         this.setState({selectedField: obj});
     }
 
@@ -66,7 +72,8 @@ class SearchForm extends Component{
                     </FormGroup>
                     <FormGroup>
                         <Label for="value">Type value for search</Label>
-                        <Input type="text" id="value" name="value" onChange={this.updateSearchValue}/>
+                        <Input type="text" id="value" name="value" onChange={this.updateSearchValue} valid={this.state.validValue} invalid={!this.state.validValue}/>
+                        <FormFeedback tooltip>Please type what you're looking for</FormFeedback>
                     </FormGroup>
                     <FormGroup>
                     <Input type="select" name="searchType" id="searchType" onChange={this.updateSearchType}>

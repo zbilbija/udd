@@ -143,7 +143,7 @@ public class MainController {
 	@ResponseBody
 	public ResponseEntity<Object> getCategories(@PathVariable String username, HttpSession session) {
 		List<Category> foundCats = new ArrayList<Category>();
-		if(username != "") {
+		if(!username.equals("guest")) {
 			User u = ur.findByUsername(username);
 			if(u.getCategory() != null)
 				foundCats.add(u.getCategory());
@@ -165,7 +165,7 @@ public class MainController {
 	@ResponseBody
 	public ResponseEntity<Object> getBooks(@PathVariable String username, HttpSession session) {
 		List<Book> foundBooks = new ArrayList<Book>();
-		if(username != "") {
+		if(!username.equals("guest")) {
 			User u = ur.findByUsername(username);
 			if(u.getCategory() != null)
 				foundBooks = br.findByCategory(u.getCategory());

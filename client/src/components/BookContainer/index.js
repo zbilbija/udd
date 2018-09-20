@@ -35,14 +35,15 @@ class BookContainer extends Component{
     }
 
     fetchData(){
-        axios.get("http://localhost:8080/categories/" + this.state.user.username).then(resp =>{
+        let username = this.isEmpty(this.state.user) ? "guest" : this.state.user.username;
+        axios.get("http://localhost:8080/categories/" + username).then(resp =>{
             console.log(resp.data)
             this.setState({categories: resp.data})
         })
         axios.get("http://localhost:8080/languages").then(resp =>{
             this.setState({languages: resp.data})
         })
-        axios.get("http://localhost:8080/books/" + this.state.user.username).then(resp =>{
+        axios.get("http://localhost:8080/books/" + username).then(resp =>{
             this.setState({books: resp.data})
         })
         this.setState({selectedCatIds: Array(this.state.categories.length).fill(false)})
@@ -70,7 +71,11 @@ class BookContainer extends Component{
     renderListItems(categoryId){
         let arr = this.state.books.map(book => {
             if(book.category.id === categoryId){
-                return <ListGroupItem key={book.id} id={book.id} onClick={this.bookDetails}>{book.title} - {book.author}</ListGroupItem>
+                return <ListGroupItem key={book.id} id={book.id}>{book.title} - {book.author} 
+                {!this.isEmpty(this.state.user) &&
+                    <Button key={book.id} id={book.id} color="info" onClick={this.bookDetails} style={{margin: "5px"}}>Details</Button>
+                }
+                </ListGroupItem>
             }
             return null;
         })

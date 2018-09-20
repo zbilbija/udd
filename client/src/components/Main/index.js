@@ -12,9 +12,10 @@ class Main extends Component{
         super(props);
 
         this.toggle = this.toggle.bind(this);
+        let user = JSON.parse(localStorage.getItem("user"));
         this.state = {
             activeTab: '1',
-            userType: JSON.parse(localStorage.getItem("user")).type,
+            userType: (user !== null)? user.type : "guest",
             rand: 0
         };
         this.refresh = this.refresh.bind(this);
@@ -75,9 +76,12 @@ class Main extends Component{
                 <TabPane tabId="3">
                   <UserContainer rand={this.state.rand}/>
                 </TabPane>
-                <TabPane tabId="4">
-                    <ProfileForm user={JSON.parse(localStorage.getItem("user"))} refresh={this.refresh}/>
-                </TabPane>
+                {
+                    this.state.userType !== 'guest' &&
+                    <TabPane tabId="4">
+                        <ProfileForm user={JSON.parse(localStorage.getItem("user"))} refresh={this.refresh}/>
+                    </TabPane>
+                }
                 <TabPane tabId="5">
                     <SearchContainer />
                 </TabPane>

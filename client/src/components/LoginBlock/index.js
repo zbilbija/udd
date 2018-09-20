@@ -50,7 +50,7 @@ class LoginBlock extends Component {
                 </Row>
                 <Row style={{margin: "5px", textAlign: "center"}}>
                     <Col xs="6" sm="4" >
-                        <Button color="info" style={{margin: "5px"}}>Proceed as guest</Button>
+                        <Button onClick={this.props.setGuest} color="info" style={{margin: "5px"}}>Proceed as guest</Button>
                     </Col>
                 </Row>
             </Container>

@@ -31,7 +31,8 @@ class SearchContainer extends Component{
     }
 
     fetchData(){
-        axios.get("http://localhost:8080/categories/"+ this.state.user.username).then(resp =>{
+        let username = (this.state.user === null) ? "guest" : this.state.user.username;
+        axios.get("http://localhost:8080/categories/"+ username).then(resp =>{
             this.setState({categories: resp.data})
         })
         axios.get("http://localhost:8080/languages").then(resp =>{
