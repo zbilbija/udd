@@ -68,7 +68,7 @@ class SearchContainer extends Component{
         this.fetchData();
     }
 
-    displayResult(data){
+    displayResult(data, value){
         this.setState({books: data})
     }
 
@@ -78,15 +78,18 @@ class SearchContainer extends Component{
                 <Row>
                     <Col sm="4" style={{ marginLeft: "20px"}}>
                         <Row>
-                           <h4>Search results:</h4>
+                           <h4>Search options:</h4>
                         </Row>
                         <Row style={{marginBottom: "15px"}}><Button color="primary" onClick={this.showSimpleSearchForm}>Display quick search</Button></Row>
-                        <Row style={{marginBottom: "15px"}}><Button color="secondary" onClick={this.showAdvancedSearchForm}>Display advanced search</Button></Row>
+                        <Row style={{marginBottom: "15px"}}><Button color="secondary" onClick={this.showAdvancedSearchForm}>Display composite search</Button></Row>
+                        <Row>
+                           <h4>Search results: ({this.state.books.length})</h4>
+                        </Row>
                         <ListGroup style={{marginBottom: "15px"}}>
                             {this.state.books.map( (res) => {
                                 return <ListGroupItem key={res.book.id} id={res.book.id}>{res.book.title} - {res.book.author}
                                         <Button key={res.book.title} id={res.book.id} color="info" onClick={this.bookDetails} style={{margin: "5px"}}>Details</Button>
-                                        {res.highlight && <p>{res.highlight}</p>}
+                                        {res.highlight && <p dangerouslySetInnerHTML={{ __html: res.highlight }}/>}
                                     </ListGroupItem>
                             })}
                         </ListGroup>

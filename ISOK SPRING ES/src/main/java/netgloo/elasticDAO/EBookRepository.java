@@ -211,8 +211,8 @@ public class EBookRepository {
     	String field = "";
     	SearchRequest searchRequest = new SearchRequest(); 
     	SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-    	QueryBuilder matchQueryBuilder1 = QueryBuilders.matchPhraseQuery(params.getField1(), params.getValue1());
-    	QueryBuilder matchQueryBuilder2 = QueryBuilders.matchPhraseQuery(params.getField2(), params.getValue2());
+    	QueryBuilder matchQueryBuilder1 = QueryBuilders.matchQuery(params.getField1(), params.getValue1());
+    	QueryBuilder matchQueryBuilder2 = QueryBuilders.matchQuery(params.getField2(), params.getValue2());
     	QueryBuilder boolQueryBuilder = null;
     	switch(type) {
 	    	case "AND":
@@ -269,11 +269,14 @@ public class EBookRepository {
     		String high = "";
     		Map<String, HighlightField> highlightFields = hit.getHighlightFields();
     	    HighlightField highlight = highlightFields.get("text");
-    	    for(Text t : highlight.fragments()) {
-    	    	high += t.string();
+    	    if(highlight != null) {
+    	    	for(Text t : highlight.fragments()) {
+    	    		String s = t.string();
+        	    	high += s; //.replaceAll("\\<.*?\\>", "");
+        	    }
+        	    //high = high.replaceAll();
+        	    retVal.setHighlight(high);
     	    }
-    	    high = high.replaceAll("\\<.*?\\>", "");
-    	    retVal.setHighlight(high);
     	}
     	return retVal;
     }

@@ -59,7 +59,7 @@ class AdvancedSearchForm extends Component{
 
     render(){
         return <div>
-            <h4>Advanced search form</h4>
+            <h4>Composite search form</h4>
             <Form>
                 <FormGroup>
                     <Label for="firstField">Select first search field</Label>
@@ -75,6 +75,14 @@ class AdvancedSearchForm extends Component{
                     <FormFeedback tooltip>Please type what you're looking for</FormFeedback>
                 </FormGroup>
                 <FormGroup>
+                    <Label for="selectedComb">Select operation for composite search</Label>
+                <Input type="select" name="selectedComb" id="selectedComb" onChange={this.updateCombination}>
+                    {this.state.combinations.map(t => {
+                        return <option key={t} value={t}>{t}</option>
+                    })}
+                </Input>
+                </FormGroup>
+                <FormGroup>
                     <Label for="secondField">Select second search field</Label>
                     <Input type="select" name="secondField" id="secondField" onChange={this.updateState}>
                         {this.state.fields.map(t => {
@@ -87,13 +95,7 @@ class AdvancedSearchForm extends Component{
                     <Input type="text" id="secondValue" name="secondValue" onChange={this.updateState} valid={this.state.validSecond} invalid={!this.state.validSecond}/>
                     <FormFeedback tooltip>Please type what you're looking for</FormFeedback>
                 </FormGroup>
-                <FormGroup>
-                <Input type="select" name="selectedComb" id="selectedComb" onChange={this.updateCombination}>
-                    {this.state.combinations.map(t => {
-                        return <option key={t} value={t}>{t}</option>
-                    })}
-                </Input>
-                </FormGroup>
+                
                 <Button color="success" onClick={this.submitQuery}>Search</Button>
                 <Button color="danger" onClick={this.props.reset}>Reset results</Button>
             </Form>

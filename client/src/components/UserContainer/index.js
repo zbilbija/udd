@@ -14,7 +14,7 @@ class UserContainer extends Component{
             selectedUser: {},
             newUser: false,
             rand: this.props.rand,
-            stored: us ? us.username : ''
+            stored: us ? us.username : 'guest'
         }
         this.userDetails = this.userDetails.bind(this);
         this.newUserClick = this.newUserClick.bind(this);

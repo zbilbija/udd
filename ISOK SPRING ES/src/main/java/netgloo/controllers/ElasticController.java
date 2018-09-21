@@ -146,14 +146,17 @@ public class ElasticController {
 		if(searchType.equals("field")) {
 			System.out.println("Entered field");
 			result = ebr.termQuery(params.getField(), toLowerCaseAndLatin(params.getValue()));
+			result.addAll(ebr.termQuery(params.getField(), toLowerCaseAndCyrilic(params.getValue())));
 		}
 		else if (searchType.equals("phrase")) {
 			System.out.println("phrase asked");
 			result = ebr.phraseQuery(params.getField(), toLowerCaseAndLatin(params.getValue()));
+			result.addAll(ebr.phraseQuery(params.getField(), toLowerCaseAndCyrilic(params.getValue())));
 		}
 		else if (searchType.equals("fuzzy")) {
 			System.out.println("fuzzy asked");
 			result = ebr.fuzzyQuery(params.getField(), toLowerCaseAndLatin(params.getValue()));
+			result.addAll(ebr.fuzzyQuery(params.getField(), toLowerCaseAndCyrilic(params.getValue())));
 		}
 		return ResponseEntity.status(HttpStatus.OK).body(result);
 	}
@@ -163,7 +166,12 @@ public class ElasticController {
 	@ResponseBody
     public ResponseEntity<Object> searchArchiveAdvanced(@PathVariable String searchType, @RequestBody AdvancedSearchParams params) throws Exception{
 		System.out.println(params);
+		params.setValue1(toLowerCaseAndLatin(params.getValue1()));
+		params.setValue2(toLowerCaseAndLatin(params.getValue2()));
 		List<SearchResult> result = ebr.booleanQuery(params, searchType);
+		params.setValue1(toLowerCaseAndCyrilic(params.getValue1()));
+		params.setValue2(toLowerCaseAndCyrilic(params.getValue2()));
+		result.addAll(ebr.booleanQuery(params, searchType));
 		return ResponseEntity.status(HttpStatus.OK).body(result);
 	}
 	
@@ -251,7 +259,14 @@ public class ElasticController {
 	
 	private String toLowerCaseAndLatin(String s) {
 		String x = s.toLowerCase();
-		x = CirilicLatinConverter.cir2lat(x);
+		x = CirilicLatinConverter.cyrilicToLatin(x);
+		return x;
+	}
+	
+	private String toLowerCaseAndCyrilic(String s) {
+		String x = s.toLowerCase();
+		x = CirilicLatinConverter.latinToCyrillic(x);
+		System.out.println(x);
 		return x;
 	}
 	

@@ -26,13 +26,18 @@ class SearchForm extends Component{
             obj.field = this.state.fields[0];
             this.setState({selectedField: obj})
         }
+        let type = this.state.searchType;
         if(this.state.searchType === ""){
-            this.setState({searchType: this.state.types[0]});
+            type = this.state.types[0];
+            this.setState({searchType: type});
         }
-        axios.post("http://localhost:8080/searchBooks/query/" + this.state.searchType, this.state.selectedField)
+        axios.post("http://localhost:8080/searchBooks/query/" + type, this.state.selectedField)
         .then(resp => {
             console.log(resp.data);
-            this.props.display(resp.data);
+            let value = "";
+            if(this.state.selectedField.field === "text")
+                value = this.state.selectedField.value;
+            this.props.display(resp.data, value);
         })
     }
 
@@ -66,7 +71,7 @@ class SearchForm extends Component{
                          <Label for="field">Select search field</Label>
                         <Input type="select" name="field" id="field" onChange={this.updateSearchField}>
                             {this.state.fields.map(t => {
-                                return <option value={t}>{t}</option>
+                                return <option key={t} value={t}>{t}</option>
                             })}
                         </Input>
                     </FormGroup>
@@ -78,7 +83,7 @@ class SearchForm extends Component{
                     <FormGroup>
                     <Input type="select" name="searchType" id="searchType" onChange={this.updateSearchType}>
                         {this.state.types.map(t => {
-                            return <option value={t}>{t}</option>
+                            return <option key={t} value={t}>{t}</option>
                         })}
                     </Input>
                     </FormGroup>

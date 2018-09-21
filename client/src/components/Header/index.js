@@ -28,7 +28,7 @@ class Header extends Component{
             <div>
                 <Navbar color="dark" dark >
                     <NavbarBrand href="#">Ebook Repository</NavbarBrand>
-                    {this.state.user && <Button color="primary" onClick={this.logout}>Logout</Button>}
+                    { (this.state.user && this.state.user.type !== "guest") && <Button color="primary" onClick={this.logout}>Logout</Button>}
                 </Navbar>
             </div>
         )

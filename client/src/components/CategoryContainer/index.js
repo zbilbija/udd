@@ -12,7 +12,7 @@ class CategoryContainer extends Component{
             selectedCat: {},
             newCat: false,
             rand: this.props.rand,
-            username: us ? us.username : ""
+            username: us ? us.username : "guest"
         }
         this.catDetails = this.catDetails.bind(this);
         this.newCatClick = this.newCatClick.bind(this);
