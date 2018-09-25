@@ -183,6 +183,18 @@ public class MainController {
 		return ResponseEntity.status(HttpStatus.OK).body(c);
 	}
 	
+	@RequestMapping(value="/deleteCategory/{id}",  method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Object> deleteCategory(@PathVariable Integer id, HttpSession session) {
+		try {
+			cr.delete(id);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			return ResponseEntity.status(HttpStatus.OK).body(false);
+		}
+		return ResponseEntity.status(HttpStatus.OK).body(true);
+	}
+	
 	@RequestMapping(value="/addUser",  method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Object> addUser(@RequestBody User u, HttpSession session) {
@@ -192,5 +204,17 @@ public class MainController {
 		}
 		u = ur.save(u);
 		return ResponseEntity.status(HttpStatus.OK).body(u);
+	}
+	
+	@RequestMapping(value="/deleteUser/{id}",  method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Object> deleteUser(@PathVariable Integer id, HttpSession session) {
+		try {
+			ur.delete(id);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			return ResponseEntity.status(HttpStatus.OK).body(false);
+		}
+		return ResponseEntity.status(HttpStatus.OK).body(true);
 	}
 }

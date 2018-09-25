@@ -68,7 +68,9 @@ class CategoryContainer extends Component{
                         </Row>
                         <ListGroup>
                         {this.state.categories.map( (cat) => {
-                            return <ListGroupItem key={cat.id} id={cat.id} onClick={this.catDetails}>{cat.name}</ListGroupItem>
+                            return <ListGroupItem key={cat.id} id={cat.id}>{cat.name}
+                                <Button key={cat.name} id={cat.id} color="info" onClick={this.catDetails} style={{margin: "5px"}}>Details</Button>
+                            </ListGroupItem>
                         })}
                         </ListGroup>
                     </Col>

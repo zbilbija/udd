@@ -10,6 +10,7 @@ class CategoryDetails extends Component{
         }
         this.updateState = this.updateState.bind(this);
         this.sendChanges = this.sendChanges.bind(this);
+        this.remove = this.remove.bind(this);
     }
 
     componentWillReceiveProps(newProps){
@@ -41,7 +42,13 @@ class CategoryDetails extends Component{
     sendChanges(){
        axios.post("http://localhost:8080/addCategory", this.state.cat).then(resp => {
            this.props.refresh()
-       })
+       });
+    }
+
+    remove(){
+        axios.post("http://localhost:8080/deleteCategory/"+this.state.cat.id).then(resp => {
+            this.props.refresh();
+        });
     }
 
     render(){

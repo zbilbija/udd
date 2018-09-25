@@ -17,6 +17,11 @@ class UserDetails extends Component{
         this.sendChanges = this.sendChanges.bind(this);
     }
 
+    componentWillReceiveProps(newProps){
+        console.log(newProps);
+        this.setState({user: newProps.user});
+    }
+
     updateState(event){
         let newState = this.state.user;
         newState[event.target.name] = event.target.value;

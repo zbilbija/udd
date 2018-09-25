@@ -69,11 +69,13 @@ class UserContainer extends Component{
                            <h4>List of users</h4>
                         </Row>
                         <Row>
-                            <Button color="success" onClick={this.newUserClick}>Add user</Button>
+                            <Button color="success" style={{marginLeft: "15px", marginBottom: "10px"}} onClick={this.newUserClick}>Add user</Button>
                         </Row>
                         <ListGroup>
                         {this.state.users.map( (user) => {
-                            return <ListGroupItem key={user.id} id={user.id} onClick={this.userDetails}>{user.username} - {user.type}</ListGroupItem>
+                            return <ListGroupItem key={user.id} id={user.id} >{user.username} - {user.type}
+                                <Button key={user.username} id={user.id} color="info" onClick={this.userDetails} style={{margin: "5px", float: "right"}}>Details</Button>
+                            </ListGroupItem>
                         })}
                         </ListGroup>
                     </Col>
