@@ -73,7 +73,7 @@ class BookContainer extends Component{
             if(book.category.id === categoryId){
                 return <ListGroupItem key={book.id} id={book.id}>{book.title} - {book.author} 
                 {!this.isEmpty(this.state.user) &&
-                    <Button key={book.id} id={book.id} color="info" onClick={this.bookDetails} style={{margin: "5px"}}>Details</Button>
+                    <Button key={book.id} id={book.id} color="info" onClick={this.bookDetails} style={{margin: "5px", float: "right"}}>Details</Button>
                 }
                 </ListGroupItem>
             }

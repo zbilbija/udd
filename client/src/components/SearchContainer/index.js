@@ -88,7 +88,7 @@ class SearchContainer extends Component{
                         <ListGroup style={{marginBottom: "15px"}}>
                             {this.state.books.map( (res) => {
                                 return <ListGroupItem key={res.book.id} id={res.book.id}>{res.book.title} - {res.book.author}
-                                        <Button key={res.book.title} id={res.book.id} color="info" onClick={this.bookDetails} style={{margin: "5px"}}>Details</Button>
+                                        <Button key={res.book.title} id={res.book.id} color="info" onClick={this.bookDetails} style={{margin: "5px", float:"right"}}>Details</Button>
                                         {res.highlight && <p dangerouslySetInnerHTML={{ __html: res.highlight }}/>}
                                     </ListGroupItem>
                             })}

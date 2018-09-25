@@ -18,7 +18,6 @@ class UserDetails extends Component{
     }
 
     componentWillReceiveProps(newProps){
-        console.log(newProps);
         this.setState({user: newProps.user});
     }
 
